@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>RFQforge — Generate RFQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --display:'DM Serif Display',serif;
+  --body:'Plus Jakarta Sans',sans-serif;
+  --ink:#0f0f0d;--muted:#52524e;--hint:#9a9a93;
+  --bg:#fafaf7;--surface:#f2f1ed;--card:#fff;
+  --border:#e4e3dd;--border-mid:#ccc9c0;
+  --green:#1a8f67;--green-pale:#e8f7f1;--green-mid:#6dcfad;--green-deep:#0d5c42;
+  --amber:#b8740f;--amber-pale:#fef3dc;
+  --red:#b91c1c;--red-pale:#fef2f2;
+  --blue:#1d4ed8;--blue-pale:#eff6ff;
+}
+html,body{font-family:var(--body);background:var(--bg);color:var(--ink);height:100%;overflow:hidden;}
+
+/* NAV */
+nav{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;background:var(--card);border-bottom:0.5px solid var(--border);flex-shrink:0;}
+.nav-brand{display:flex;align-items:center;gap:8px;text-decoration:none;}
+.nav-mark{width:28px;height:28px;border-radius:8px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nav-name{font-family:var(--display);font-size:18px;color:var(--ink);}
+.nav-name em{color:var(--green);font-style:normal;}
+.nav-right{display:flex;align-items:center;gap:9px;}
+.nav-btn{font-size:12.5px;color:var(--muted);background:transparent;border:0.5px solid var(--border);border-radius:7px;padding:5px 12px;cursor:pointer;text-decoration:none;transition:all .15s;font-family:var(--body);}
+.nav-btn:hover{border-color:var(--ink);color:var(--ink);}
+.nav-btn.tour{background:var(--blue-pale);border-color:#93c5fd;color:var(--blue);}
+
+/* COMPANY BAR */
+.company-bar{height:44px;display:flex;align-items:center;gap:8px;padding:0 1.5rem;background:var(--card);border-bottom:0.5px solid var(--border);overflow-x:auto;flex-shrink:0;}
+.cb-label{font-size:11px;color:var(--hint);white-space:nowrap;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-right:2px;}
+.company-chip{display:flex;align-items:center;gap:6px;background:var(--surface);border:0.5px solid var(--border);border-radius:20px;padding:4px 13px;cursor:pointer;font-size:12.5px;color:var(--muted);white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.company-chip:hover{border-color:var(--ink);color:var(--ink);}
+.company-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.company-chip-edit{font-size:11px;opacity:.6;margin-left:2px;}
+.company-chip-edit:hover{opacity:1;}
+.add-co-btn{display:flex;align-items:center;gap:5px;background:transparent;border:0.5px dashed var(--border-mid);border-radius:20px;padding:4px 13px;cursor:pointer;font-size:12.5px;color:var(--hint);white-space:nowrap;transition:all .15s;font-family:var(--body);flex-shrink:0;}
+.add-co-btn:hover{border-color:var(--green);color:var(--green);}
+
+/* LAYOUT */
+.app-body{display:grid;grid-template-columns:410px 1fr;height:calc(100vh - 54px - 44px);overflow:hidden;}
+.form-col{overflow-y:auto;border-right:0.5px solid var(--border);background:var(--card);}
+.out-col{overflow-y:auto;background:var(--surface);}
+
+/* FORM */
+.form-inner{padding:1.4rem 1.6rem 2rem;}
+.sec{margin-bottom:1.1rem;}
+.sec-head{display:flex;align-items:center;gap:8px;margin-bottom:.85rem;}
+.sec-n{font-size:10px;font-weight:700;color:var(--green);background:var(--green-pale);border-radius:20px;padding:2px 9px;letter-spacing:.4px;}
+.sec-t{font-family:var(--display);font-size:15px;font-style:italic;color:var(--ink);}
+.divider{height:0.5px;background:var(--border);margin:1.1rem 0;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.field{margin-bottom:.7rem;}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.field input,.field select,.field textarea{
+  width:100%;font-family:var(--body);font-size:13px;color:var(--ink);
+  background:var(--surface);border:0.5px solid var(--border);
+  border-radius:8px;padding:8px 10px;outline:none;transition:border-color .15s,background .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green);background:#fff;}
+.field textarea{resize:vertical;min-height:58px;line-height:1.6;}
+.field select{appearance:none;cursor:pointer;}
+/* force date picker to always show en-US format */
+.field input[type=date]{color-scheme:light;}
+
+/* AUTOCOMPLETE */
+.ac-wrap{position:relative;}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--card);border:0.5px solid var(--border);border-radius:8px;z-index:30;box-shadow:0 4px 16px rgba(0,0,0,.08);display:none;max-height:160px;overflow-y:auto;}
+.ac-item{padding:8px 11px;font-size:13px;cursor:pointer;color:var(--ink);transition:background .1s;}
+.ac-item:hover{background:var(--green-pale);}
+
+/* BRAND BOX */
+.brand-box{display:grid;grid-template-columns:68px 1fr;gap:10px;align-items:center;margin-bottom:.8rem;}
+.logo-box{width:68px;height:50px;border-radius:9px;background:var(--surface);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;position:relative;transition:border-color .15s;}
+.logo-box:hover{border-color:var(--green);}
+.logo-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.logo-box img{max-width:100%;max-height:100%;object-fit:contain;}
+.logo-box-text{font-size:9.5px;color:var(--hint);text-align:center;line-height:1.4;pointer-events:none;}
+.logo-side strong{display:block;font-size:13px;color:var(--ink);margin-bottom:2px;}
+.logo-side span{font-size:11.5px;color:var(--muted);}
+
+/* STYLE TRIGGER */
+.style-trigger{display:flex;align-items:center;gap:9px;background:var(--amber-pale);border:0.5px solid #f5d28a;border-radius:9px;padding:.7rem 1rem;cursor:pointer;transition:border-color .15s;width:100%;font-family:var(--body);}
+.style-trigger:hover{border-color:var(--amber);}
+.st-icon{font-size:16px;flex-shrink:0;}
+.st-body strong{font-size:12.5px;color:var(--amber);display:block;}
+.st-body span{font-size:11px;color:var(--muted);}
+.st-arrow{margin-left:auto;color:var(--amber);font-size:13px;}
+
+/* SIG PREVIEW */
+.sig-prev{background:var(--surface);border-radius:9px;border:0.5px solid var(--border);padding:.85rem 1rem;margin-top:.6rem;}
+.sig-prev-lbl{font-size:9.5px;text-transform:uppercase;letter-spacing:1.3px;color:var(--hint);margin-bottom:.5rem;font-weight:700;}
+.sig-prev-body{display:flex;align-items:flex-start;gap:9px;}
+.sig-prev-bar{width:2.5px;min-height:42px;background:var(--green-mid);border-radius:2px;flex-shrink:0;}
+.sig-prev-text{font-size:11.5px;line-height:1.85;color:var(--ink);flex:1;}
+.sig-prev-text strong{font-size:12.5px;display:block;}
+.sig-prev-text em{font-style:normal;font-size:11px;color:var(--green-deep);}
+.sig-prev-text span{color:var(--muted);}
+.sig-prev-logo{max-height:32px;max-width:60px;object-fit:contain;opacity:.75;}
+
+/* ITEMS */
+.items-head{display:grid;grid-template-columns:2fr 1fr 1fr 26px;gap:7px;margin-bottom:4px;}
+.items-head span{font-size:10px;color:var(--hint);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.item-row{display:grid;grid-template-columns:2fr 1fr 1fr 26px;gap:7px;align-items:center;margin-bottom:5px;}
+.item-row input{font-family:var(--body);font-size:12.5px;color:var(--ink);background:var(--surface);border:0.5px solid var(--border);border-radius:7px;padding:7px 9px;outline:none;width:100%;transition:border-color .15s;}
+.item-row input:focus{border-color:var(--green);background:#fff;}
+/* force item qty to western numerals */
+.item-qty{font-variant-numeric:lining-nums;-moz-font-feature-settings:'lnum';-webkit-font-feature-settings:'lnum';}
+.rm{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border:0.5px solid var(--border);border-radius:5px;background:transparent;color:var(--hint);cursor:pointer;font-size:15px;transition:all .15s;font-family:var(--body);}
+.rm:hover{background:var(--red-pale);color:var(--red);border-color:#fca5a5;}
+.add-item-btn{font-family:var(--body);font-size:12px;color:var(--green);background:transparent;border:0.5px dashed var(--green-mid);border-radius:7px;padding:7px;cursor:pointer;width:100%;transition:background .15s;}
+.add-item-btn:hover{background:var(--green-pale);}
+
+/* GEN BTN */
+.gen-btn{width:100%;margin-top:.9rem;padding:13px;font-family:var(--display);font-size:18px;font-style:italic;background:var(--ink);color:#fff;border:none;border-radius:10px;cursor:pointer;transition:opacity .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.gen-btn:hover{opacity:.83;}
+.gen-btn:active{transform:scale(.985);}
+.gen-btn:disabled{opacity:.35;cursor:not-allowed;}
+.err-msg{font-size:12px;color:var(--red);background:var(--red-pale);border:0.5px solid #fca5a5;border-radius:8px;padding:8px 11px;margin-top:7px;}
+.auto-save-badge{font-size:10.5px;color:var(--hint);text-align:center;margin-top:6px;}
+
+/* OUTPUT */
+.out-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;gap:13px;text-align:center;padding:3rem 2rem;}
+.empty-icon{width:52px;height:52px;border-radius:13px;background:var(--card);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;}
+.empty-title{font-family:var(--display);font-size:20px;font-style:italic;}
+.empty-sub{font-size:13px;color:var(--muted);max-width:200px;line-height:1.75;}
+.empty-hints{display:flex;flex-direction:column;gap:7px;margin-top:.2rem;}
+.hint-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--hint);}
+.hint-dot{width:5px;height:5px;border-radius:50%;background:var(--green-mid);flex-shrink:0;}
+
+.out-panel{display:none;padding:1.4rem 1.6rem;}
+.out-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;}
+.out-lbl{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:1.4px;font-weight:700;}
+.toolbar-acts{display:flex;gap:7px;}
+.act-btn{font-family:var(--body);font-size:12px;color:var(--muted);background:var(--card);border:0.5px solid var(--border);border-radius:7px;padding:5px 13px;cursor:pointer;transition:all .15s;}
+.act-btn:hover{border-color:var(--green);color:var(--green-deep);}
+.act-btn.solid{background:var(--ink);color:#fff;border-color:var(--ink);}
+.act-btn.solid:hover{opacity:.82;}
+.progress{height:1.5px;background:var(--border);margin-bottom:1.2rem;overflow:hidden;border-radius:2px;}
+.progress-fill{height:100%;background:var(--green);width:0%;transition:width .3s;}
+
+/* DOCUMENT */
+.doc-paper{background:#fff;border:0.5px solid var(--border);border-radius:12px;overflow:hidden;}
+.doc-hd{padding:1.5rem 1.9rem 1.2rem;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
+.doc-logo-block{display:flex;align-items:center;gap:11px;}
+.doc-logo-img{max-height:46px;max-width:120px;object-fit:contain;}
+.doc-logo-fb{width:42px;height:42px;border-radius:8px;background:var(--surface);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--hint);text-align:center;line-height:1.3;}
+.doc-co-name{font-family:var(--display);font-size:18px;color:var(--ink);}
+.doc-co-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.doc-meta{font-size:12px;color:var(--muted);line-height:1.95;}
+.doc-meta strong{color:var(--ink);font-weight:500;}
+.doc-ref{display:inline-block;font-size:11px;background:var(--green-pale);color:var(--green-deep);border-radius:20px;padding:2px 11px;margin-bottom:.45rem;font-family:var(--body);}
+.doc-bd{padding:1.5rem 1.9rem;}
+.doc-sec{margin-bottom:1.1rem;}
+.doc-sec h3{font-size:9.5px;text-transform:uppercase;letter-spacing:1.8px;color:var(--hint);margin-bottom:.45rem;font-weight:700;}
+.doc-text{font-size:13px;line-height:1.85;color:var(--ink);}
+.doc-subject{font-size:14px;font-weight:600;color:var(--ink);}
+.doc-salutation{font-size:13px;color:var(--ink);margin-bottom:.55rem;font-style:italic;}
+.doc-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:.5rem 0;}
+.doc-table th{font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;text-align:left;padding:6px 9px;border-bottom:0.5px solid var(--border);}
+.doc-table td{padding:8px 9px;border-bottom:0.5px solid var(--border);color:var(--ink);}
+.doc-table tr:last-child td{border-bottom:none;}
+.doc-table tr:nth-child(even) td{background:var(--surface);}
+.doc-terms{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:.5rem 0;}
+.term-c{background:var(--surface);border-radius:7px;padding:8px 10px;}
+.term-c-lbl{font-size:9.5px;color:var(--hint);margin-bottom:2px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.term-c-val{font-size:12px;color:var(--ink);font-weight:600;}
+.terms-list{font-size:12px;color:var(--muted);line-height:1.9;margin-top:.5rem;}
+.doc-sig{border-top:0.5px solid var(--border);padding:1.2rem 1.9rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;}
+.doc-sig-left{display:flex;align-items:flex-start;gap:10px;}
+.doc-sig-bar{width:3px;min-height:50px;background:var(--green);border-radius:2px;flex-shrink:0;}
+.doc-sig-info{font-size:12px;color:var(--muted);line-height:1.9;}
+.doc-sig-info strong{font-size:13.5px;display:block;color:var(--ink);font-weight:600;}
+.doc-sig-info em{font-style:normal;font-size:11.5px;color:var(--green-deep);}
+.doc-sig-logo{max-height:36px;max-width:75px;object-fit:contain;opacity:.75;}
+.rtl{direction:rtl;text-align:right;}
+.rtl .doc-hd,.rtl .doc-logo-block{flex-direction:row-reverse;}
+.rtl .doc-meta{text-align:left;}
+.rtl .doc-table th,.rtl .doc-table td{text-align:right;}
+.rtl .doc-sig,.rtl .doc-sig-left{flex-direction:row-reverse;}
+
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(10,10,8,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(3px);}
+.overlay.open{display:flex;}
+.modal{background:var(--card);border-radius:16px;width:100%;overflow:hidden;box-shadow:0 32px 100px rgba(0,0,0,.25);}
+.modal-hd{padding:1.1rem 1.4rem;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:var(--display);font-size:18px;font-style:italic;}
+.modal-x{width:30px;height:30px;border-radius:7px;border:0.5px solid var(--border);background:transparent;cursor:pointer;font-size:17px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--body);}
+.modal-x:hover{background:var(--surface);color:var(--ink);}
+.modal-bd{padding:1.3rem 1.4rem;overflow-y:auto;}
+.modal-ft{padding:.9rem 1.4rem;border-top:0.5px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.mbtn{font-family:var(--body);font-size:13px;padding:8px 18px;border-radius:8px;cursor:pointer;font-weight:600;transition:all .15s;}
+.mbtn-cancel{background:transparent;border:0.5px solid var(--border);color:var(--muted);}
+.mbtn-cancel:hover{border-color:var(--ink);color:var(--ink);}
+.mbtn-save{background:var(--ink);color:#fff;border:none;}
+.mbtn-save:hover{opacity:.84;}
+.mbtn-del{background:var(--red-pale);color:var(--red);border:0.5px solid #fca5a5;}
+.mbtn-del:hover{background:var(--red);color:#fff;}
+
+/* STYLE MODAL */
+.upload-zone{border:0.5px dashed var(--border-mid);border-radius:10px;padding:1.3rem;cursor:pointer;text-align:center;background:var(--surface);position:relative;margin-bottom:1.1rem;transition:all .2s;}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--green);background:var(--green-pale);}
+.upload-zone.loaded{border-color:var(--green);border-style:solid;background:var(--green-pale);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.uz-icon{font-size:24px;margin-bottom:.4rem;}
+.uz-title{font-size:13.5px;font-weight:600;color:var(--ink);}
+.uz-sub{font-size:11.5px;color:var(--muted);margin-top:2px;}
+.uz-file{font-size:12px;color:var(--green-deep);margin-top:4px;font-weight:600;}
+.signal-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:.75rem;}
+.signal-tag{font-size:11px;background:var(--surface);border:0.5px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--muted);}
+.signal-tag.on{background:var(--green-pale);border-color:var(--green-mid);color:var(--green-deep);}
+
+/* TOOLTIP TOUR */
+.tour-overlay{position:fixed;inset:0;z-index:300;pointer-events:none;}
+.tour-spotlight{position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgba(10,10,8,.6);z-index:301;pointer-events:none;transition:all .35s;}
+.tour-tooltip{position:fixed;z-index:302;background:var(--card);border-radius:12px;padding:1.1rem 1.25rem;width:280px;box-shadow:0 16px 48px rgba(0,0,0,.2);pointer-events:auto;}
+.tour-tip-title{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:.35rem;}
+.tour-tip-body{font-size:12.5px;color:var(--muted);line-height:1.65;margin-bottom:.9rem;}
+.tour-tip-footer{display:flex;align-items:center;justify-content:space-between;}
+.tour-progress{font-size:11px;color:var(--hint);}
+.tour-btns{display:flex;gap:7px;}
+.tour-btn{font-size:12px;padding:6px 14px;border-radius:7px;cursor:pointer;font-family:var(--body);font-weight:600;transition:all .15s;}
+.tour-skip{background:transparent;border:0.5px solid var(--border);color:var(--muted);}
+.tour-skip:hover{color:var(--ink);}
+.tour-next{background:var(--ink);color:#fff;border:none;}
+.tour-next:hover{opacity:.84;}
+.beacon{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--green);z-index:299;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(26,143,103,.5);}70%{box-shadow:0 0 0 10px rgba(26,143,103,0);}100%{box-shadow:0 0 0 0 rgba(26,143,103,0);}}
+
+/* WALKTHROUGH PANEL */
+.walkthrough{position:fixed;bottom:1.5rem;right:1.5rem;width:320px;background:var(--card);border:0.5px solid var(--border);border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,.12);z-index:250;overflow:hidden;animation:slideUp .4s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.wt-header{padding:.8rem 1rem;background:var(--ink);display:flex;align-items:center;justify-content:space-between;}
+.wt-title{font-size:13px;font-weight:600;color:#fff;}
+.wt-close{background:transparent;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:18px;line-height:1;font-family:var(--body);}
+.wt-close:hover{color:#fff;}
+.wt-body{padding:1rem;}
+.wt-steps{display:flex;flex-direction:column;gap:.6rem;}
+.wt-step{display:flex;align-items:center;gap:10px;padding:.6rem .75rem;border-radius:8px;background:var(--surface);transition:background .2s;}
+.wt-step.active{background:var(--green-pale);border:0.5px solid var(--green-mid);}
+.wt-step.done{opacity:.5;}
+.wt-step-num{width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--muted);flex-shrink:0;}
+.wt-step.active .wt-step-num{background:var(--green);color:#fff;}
+.wt-step.done .wt-step-num{background:var(--green-pale);color:var(--green-deep);}
+.wt-step-text{font-size:12px;color:var(--ink);}
+.wt-step.active .wt-step-text{font-weight:600;}
+.wt-footer{padding:.75rem 1rem;border-top:0.5px solid var(--border);display:flex;gap:8px;}
+.wt-btn{flex:1;font-family:var(--body);font-size:12px;padding:7px;border-radius:7px;cursor:pointer;font-weight:600;transition:all .15s;}
+.wt-prev-btn{background:transparent;border:0.5px solid var(--border);color:var(--muted);}
+.wt-next-btn{background:var(--ink);color:#fff;border:none;}
+.wt-next-btn:hover{opacity:.84;}
+
+@media print{
+  nav,.company-bar,.tour-overlay,.beacon,.walkthrough,.overlay,.style-trigger,.out-toolbar,.progress,.form-col,#empty-state{display:none!important;}
+  html,body{overflow:auto;height:auto;}
+  .app-body{display:block;height:auto;}
+  .out-col{overflow:visible;background:#fff;}
+  .out-panel{display:block!important;padding:.5rem;}
+  .doc-paper{border:none;border-radius:0;box-shadow:none;}
+}
+</style>
+  <script defer data-domain="your-domain.com" src="https://plausible.io/js/script.js"></script>
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString()+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('YOUR_POSTHOG_KEY',{api_host:'https://app.posthog.com'});
+  </script>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/">
+    <div class="nav-mark">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="2" width="5" height="6" rx="1" fill="#1a8f67"/>
+        <rect x="9" y="2" width="5" height="3" rx="1" fill="white" opacity=".6"/>
+        <rect x="2" y="10" width="12" height="1.5" rx=".75" fill="white" opacity=".4"/>
+        <rect x="2" y="12.5" width="8" height="1.5" rx=".75" fill="white" opacity=".25"/>
+      </svg>
+    </div>
+    <span class="nav-name">RFQ<em>forge</em></span>
+  </a>
+  <div class="nav-right">
+    <button class="nav-btn tour" onclick="startTour()">? Tour</button>
+    <a class="nav-btn" href="/">← Home</a>
+  </div>
+</nav>
+
+<div class="company-bar" id="company-bar">
+  <span class="cb-label">Company</span>
+  <div id="company-chips" style="display:flex;gap:8px;"></div>
+  <button class="add-co-btn" onclick="openAddCompany()">+ Add company</button>
+</div>
+
+<div class="app-body">
+  <div class="form-col">
+    <div class="form-inner">
+
+      <!-- 00 BRAND -->
+      <div class="sec" id="sec-brand">
+        <div class="sec-head"><span class="sec-n">00</span><span class="sec-t">Brand & style</span></div>
+        <div class="brand-box">
+          <div class="logo-box" id="logo-box">
+            <input type="file" accept="image/*" onchange="onLogoSelect(event)"/>
+            <div id="logo-inner"><div class="logo-box-text">Upload<br/>logo</div></div>
+          </div>
+          <div class="logo-side">
+            <strong id="logo-status">No logo yet</strong>
+            <span>PNG, JPG or SVG · Click to upload</span>
+          </div>
+        </div>
+        <button class="style-trigger" onclick="openStyleModal()">
+          <span class="st-icon">🧠</span>
+          <div class="st-body"><strong>Style learning</strong><span id="style-status">Upload a past RFQ to match your writing style</span></div>
+          <span class="st-arrow">→</span>
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- 01 WHO -->
+      <div class="sec" id="sec-who">
+        <div class="sec-head"><span class="sec-n">01</span><span class="sec-t">Who's involved?</span></div>
+        <div class="g2">
+          <div class="field"><label>Your company</label><input id="f-company" type="text" placeholder="Acme Corp" oninput="updateSig();autoSave()"/></div>
+          <div class="field">
+            <label>Supplier / vendor</label>
+            <div class="ac-wrap">
+              <input id="f-supplier" type="text" placeholder="Al-Rashid Supplies" oninput="acSupplier(this.value);autoSave()" autocomplete="off"/>
+              <div class="ac-list" id="ac-supplier"></div>
+            </div>
+          </div>
+        </div>
+        <div class="field"><label>Receiver name</label><input id="f-receiver" type="text" placeholder="Ahmad Al-Khatib (for Dear Ahmad…)" oninput="autoSave()"/></div>
+        <div class="g2">
+          <div class="field"><label>Your name</label><input id="f-contact" type="text" oninput="updateSig();autoSave()"/></div>
+          <div class="field"><label>Designation / title</label><input id="f-designation" type="text" placeholder="Procurement Manager" oninput="updateSig();autoSave()"/></div>
+        </div>
+        <div class="g2">
+          <div class="field"><label>Email</label><input id="f-email" type="email" oninput="updateSig();autoSave()"/></div>
+          <div class="field"><label>Phone</label><input id="f-phone" type="tel" oninput="updateSig();autoSave()"/></div>
+        </div>
+        <div class="field"><label>Website (optional)</label><input id="f-website" type="text" oninput="updateSig();autoSave()"/></div>
+        <div class="sig-prev">
+          <div class="sig-prev-lbl">Signature preview</div>
+          <div class="sig-prev-body">
+            <div class="sig-prev-bar"></div>
+            <div class="sig-prev-text" id="sp-text">
+              <strong id="sp-name">Your Name</strong>
+              <em id="sp-desig" style="display:none"></em>
+              <span id="sp-co" style="display:none"></span>
+              <span id="sp-email" style="display:none"></span>
+              <span id="sp-phone" style="display:none"></span>
+              <span id="sp-web" style="display:none"></span>
+            </div>
+            <img id="sp-logo" class="sig-prev-logo" style="display:none" src="" alt=""/>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- 02 WHAT -->
+      <div class="sec" id="sec-what">
+        <div class="sec-head"><span class="sec-n">02</span><span class="sec-t">Project details</span></div>
+        <div class="field"><label>Project or purpose</label><input id="f-project" type="text" placeholder="Annual equipment restock — Q2 2026" oninput="autoSave()"/></div>
+        <div class="g2">
+          <div class="field"><label>Start date</label><input id="f-startdate" type="date" lang="en" oninput="autoSave()"/></div>
+          <div class="field"><label>Quote deadline</label><input id="f-deadline" type="date" lang="en" oninput="autoSave()"/></div>
+        </div>
+        <div class="field"><label>Delivery location</label><input id="f-delivery" type="text" placeholder="e.g. Jakarta, Indonesia" oninput="autoSave()"/></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- 03 ITEMS -->
+      <div class="sec" id="sec-items">
+        <div class="sec-head"><span class="sec-n">03</span><span class="sec-t">Items requested</span></div>
+        <div class="items-head"><span>Description</span><span>Qty</span><span>Unit</span><span></span></div>
+        <div id="items-list"></div>
+        <button class="add-item-btn" onclick="addItem()">+ Add another item</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- 04 SETTINGS -->
+      <div class="sec" id="sec-settings">
+        <div class="sec-head"><span class="sec-n">04</span><span class="sec-t">Settings</span></div>
+        <div class="g2">
+          <div class="field">
+            <label>Output language</label>
+            <select id="f-lang" onchange="autoSave()">
+              <option value="en">🇬🇧 English</option>
+              <option value="ar">🇸🇦 Arabic — العربية</option>
+              <option value="fr">🇫🇷 French — Français</option>
+              <option value="tr">🇹🇷 Turkish — Türkçe</option>
+              <option value="ur">🇵🇰 Urdu — اردو</option>
+              <option value="id">🇮🇩 Indonesian — Bahasa</option>
+              <option value="de">🇩🇪 German — Deutsch</option>
+              <option value="es">🇪🇸 Spanish — Español</option>
+              <option value="zh">🇨🇳 Chinese — 中文</option>
+              <option value="ja">🇯🇵 Japanese — 日本語</option>
+              <option value="ko">🇰🇷 Korean — 한국어</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Tone</label>
+            <select id="f-tone" onchange="autoSave()">
+              <option value="formal">Formal & professional</option>
+              <option value="friendly">Friendly & collaborative</option>
+              <option value="urgent">Urgent & direct</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Payment terms</label>
+          <select id="f-payment" onchange="autoSave()">
+            <option value="net30">Net 30 days</option>
+            <option value="net60">Net 60 days</option>
+            <option value="advance">Advance payment</option>
+            <option value="lc">Letter of Credit</option>
+          </select>
+        </div>
+        <div class="field"><label>Special requirements (optional)</label><textarea id="f-notes" oninput="autoSave()" placeholder="ISO certifications, warranty terms, VAT registration…"></textarea></div>
+      </div>
+
+      <button class="gen-btn" id="gen-btn" onclick="generate()">
+        <span id="btn-text">Generate document</span>
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div id="err"></div>
+      <div class="auto-save-badge" id="save-badge"></div>
+      <div style="height:1.5rem"></div>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="out-col">
+    <div class="out-empty" id="empty-state">
+      <div class="empty-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9a9a93" stroke-width="1.2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+      </div>
+      <div class="empty-title">Your document<br/>appears here</div>
+      <div class="empty-sub">Fill the form and click generate. Clean PDF, no watermarks.</div>
+      <div class="empty-hints">
+        <div class="hint-row"><div class="hint-dot"></div><span>Logo in header & signature</span></div>
+        <div class="hint-row"><div class="hint-dot"></div><span>"Dear [Name]," salutation</span></div>
+        <div class="hint-row"><div class="hint-dot"></div><span>Start date + deadline</span></div>
+        <div class="hint-row"><div class="hint-dot"></div><span>11 languages, all free</span></div>
+        <div class="hint-row"><div class="hint-dot"></div><span>Auto-saved between sessions</span></div>
+      </div>
+    </div>
+    <div class="out-panel" id="out-panel">
+      <div class="out-toolbar">
+        <span class="out-lbl">Generated document</span>
+        <div class="toolbar-acts">
+          <button class="act-btn" onclick="copyDoc()">Copy text</button>
+          <button class="act-btn solid" onclick="window.print()">Save as PDF</button>
+        </div>
+      </div>
+      <div class="progress"><div class="progress-fill" id="prog"></div></div>
+      <div class="doc-paper" id="doc-paper"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STYLE MODAL -->
+<div class="overlay" id="style-overlay" onclick="closeStyleModal(event)">
+  <div class="modal" style="max-width:640px;" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <div class="modal-title">Style learning</div>
+      <button class="modal-x" onclick="closeStyleModal()">×</button>
+    </div>
+    <div class="modal-bd" style="max-height:60vh;">
+      <p style="font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:1.1rem;">Upload a previous RFQ. The AI analyses your vocabulary, tone, sentence structure, and formatting conventions — then replicates them precisely. This never appears in your generated document.</p>
+      <div class="upload-zone" id="style-zone" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onStyleDrop(event)">
+        <input type="file" accept=".pdf,.txt,.doc,.docx" onchange="onStyleSelect(event)"/>
+        <div class="uz-icon">📄</div>
+        <div class="uz-title" id="style-uz-title">Drop your RFQ here or click to browse</div>
+        <div class="uz-sub">PDF, Word, or plain text</div>
+        <div class="uz-file" id="style-uz-file"></div>
+      </div>
+      <div id="signals-wrap" style="display:none;margin-bottom:1rem;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:.5rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Detected style signals</div>
+        <div class="signal-row" id="signal-tags"></div>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Additional instructions (optional)</label>
+        <textarea id="style-instructions" style="width:100%;font-family:var(--body);font-size:13px;color:var(--ink);background:var(--surface);border:0.5px solid var(--border);border-radius:8px;padding:9px 11px;outline:none;resize:vertical;min-height:72px;line-height:1.6;" placeholder="e.g. Always number items. Open with 'Dear Sir/Madam'. Include delivery inspection clause."></textarea>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn mbtn-cancel" onclick="closeStyleModal()">Cancel</button>
+      <button class="mbtn mbtn-save" onclick="saveStyle()">Apply style</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT COMPANY MODAL -->
+<div class="overlay" id="company-overlay" onclick="closeCompanyModal(event)">
+  <div class="modal" style="max-width:460px;" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <div class="modal-title" id="co-modal-title">Add company</div>
+      <button class="modal-x" onclick="closeCompanyModal()">×</button>
+    </div>
+    <div class="modal-bd">
+      <input type="hidden" id="co-edit-id"/>
+      <div class="field"><label>Company name</label><input id="co-name" type="text" placeholder="Acme Corp"/></div>
+      <div class="g2">
+        <div class="field"><label>Contact name</label><input id="co-contact" type="text"/></div>
+        <div class="field"><label>Designation</label><input id="co-designation" type="text" placeholder="Procurement Manager"/></div>
+      </div>
+      <div class="g2">
+        <div class="field"><label>Email</label><input id="co-email" type="email"/></div>
+        <div class="field"><label>Phone</label><input id="co-phone" type="tel"/></div>
+      </div>
+      <div class="field"><label>Website (optional)</label><input id="co-website" type="text"/></div>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn mbtn-del" id="co-del-btn" onclick="deleteCompany()" style="display:none;">Delete</button>
+      <button class="mbtn mbtn-cancel" onclick="closeCompanyModal()">Cancel</button>
+      <button class="mbtn mbtn-save" onclick="saveCompany()">Save company</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLTIP TOUR OVERLAY -->
+<div class="tour-overlay" id="tour-overlay" style="display:none;">
+  <div class="tour-spotlight" id="tour-spotlight"></div>
+  <div class="tour-tooltip" id="tour-tooltip">
+    <div class="tour-tip-title" id="tt-title"></div>
+    <div class="tour-tip-body" id="tt-body"></div>
+    <div class="tour-tip-footer">
+      <span class="tour-progress" id="tt-progress"></span>
+      <div class="tour-btns">
+        <button class="tour-btn tour-skip" onclick="endTour()">Skip tour</button>
+        <button class="tour-btn tour-next" id="tt-next-btn" onclick="nextTourStep()">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WALKTHROUGH PANEL -->
+<div class="walkthrough" id="walkthrough" style="display:none;">
+  <div class="wt-header">
+    <span class="wt-title">👋 Quick start guide</span>
+    <button class="wt-close" onclick="closeWalkthrough()">×</button>
+  </div>
+  <div class="wt-body">
+    <div class="wt-steps" id="wt-steps"></div>
+  </div>
+  <div class="wt-footer">
+    <button class="wt-btn wt-prev-btn" onclick="wtPrev()">← Back</button>
+    <button class="wt-btn wt-next-btn" onclick="wtNext()" id="wt-next-btn">Next step →</button>
+  </div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/* ─── STATE ─── */
+let companies=[], activeId='', items=[], logo='', styleText='', styleLoaded=false, supplierHistory=[], autoSaveTimer=null, wtStep=0;
+
+const WT_STEPS=[
+  {title:'Upload your logo',body:'Click the logo box in section 00 to add your company logo. It will appear in the document header and signature.'},
+  {title:'Set up your profile',body:'Fill in your name, title, email and phone in section 01. The live signature preview updates as you type.'},
+  {title:'Add project details',body:'In section 02 — enter the supplier, receiver name (for Dear…), start date, deadline and delivery location.'},
+  {title:'List your items',body:'Add everything you need in section 03. Quantity always shows in Western numerals regardless of language.'},
+  {title:'Choose language & tone',body:'Pick from 11 languages in section 04 — all free. The document will be written natively, not just translated.'},
+  {title:'Generate & download',body:'Click Generate. Copy the text or Save as PDF — clean output with no watermarks or tool labels.'}
+];
+
+/* ─── LOCAL STORAGE ─── */
+const LS={
+  save(){
+    localStorage.setItem('rfq_companies',JSON.stringify(companies));
+    localStorage.setItem('rfq_active',activeId);
+    localStorage.setItem('rfq_suppliers',JSON.stringify(supplierHistory));
+    localStorage.setItem('rfq_form',JSON.stringify({
+      company:v('f-company'),supplier:v('f-supplier'),receiver:v('f-receiver'),
+      contact:v('f-contact'),designation:v('f-designation'),email:v('f-email'),
+      phone:v('f-phone'),website:v('f-website'),project:v('f-project'),
+      startdate:v('f-startdate'),deadline:v('f-deadline'),delivery:v('f-delivery'),
+      lang:v('f-lang'),tone:v('f-tone'),payment:v('f-payment'),notes:v('f-notes'),
+      items:[...items]
+    }));
+  },
+  load(){
+    try{
+      companies=JSON.parse(localStorage.getItem('rfq_companies')||'[]');
+      activeId=localStorage.getItem('rfq_active')||'';
+      supplierHistory=JSON.parse(localStorage.getItem('rfq_suppliers')||'[]');
+      const form=JSON.parse(localStorage.getItem('rfq_form')||'{}');
+      if(form.company)set('f-company',form.company);
+      if(form.supplier)set('f-supplier',form.supplier);
+      if(form.receiver)set('f-receiver',form.receiver);
+      if(form.contact)set('f-contact',form.contact);
+      if(form.designation)set('f-designation',form.designation);
+      if(form.email)set('f-email',form.email);
+      if(form.phone)set('f-phone',form.phone);
+      if(form.website)set('f-website',form.website);
+      if(form.project)set('f-project',form.project);
+      if(form.startdate)set('f-startdate',form.startdate);
+      if(form.deadline)set('f-deadline',form.deadline);
+      if(form.delivery)set('f-delivery',form.delivery);
+      if(form.lang)set('f-lang',form.lang);
+      if(form.tone)set('f-tone',form.tone);
+      if(form.payment)set('f-payment',form.payment);
+      if(form.notes)set('f-notes',form.notes);
+      if(form.items&&form.items.length){items=form.items;renderItems();}
+    }catch(e){}
+  }
+};
+function v(id){return document.getElementById(id)?.value?.trim()||'';}
+function set(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+function autoSave(){
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer=setTimeout(()=>{LS.save();showSaveBadge();},1500);
+}
+function showSaveBadge(){
+  const el=document.getElementById('save-badge');
+  el.textContent='✓ Auto-saved';
+  setTimeout(()=>el.textContent='',2500);
+}
+
+/* ─── COMPANIES ─── */
+function renderCompanyBar(){
+  document.getElementById('company-chips').innerHTML=companies.map(c=>`
+    <div class="company-chip ${c.id===activeId?'active':''}" onclick="switchCompany('${c.id}')">
+      ${c.logo?`<div style="width:16px;height:16px;border-radius:3px;overflow:hidden;background:var(--surface);"><img src="${c.logo}" style="width:100%;height:100%;object-fit:contain;"/></div>`:''}
+      ${esc(c.name)}
+      <span class="company-chip-edit" onclick="event.stopPropagation();openEditCompany('${c.id}')">✎</span>
+    </div>`).join('');
+}
+function switchCompany(id){
+  activeId=id;
+  const c=companies.find(x=>x.id===id);if(!c)return;
+  set('f-company',c.name);set('f-contact',c.contact);set('f-designation',c.designation);
+  set('f-email',c.email);set('f-phone',c.phone);set('f-website',c.website||'');
+  logo=c.logo||'';
+  if(logo){
+    document.getElementById('logo-inner').innerHTML=`<img src="${logo}" style="max-width:100%;max-height:100%;object-fit:contain;"/>`;
+    document.getElementById('logo-status').textContent='Logo loaded ✓';
+    document.getElementById('sp-logo').src=logo;document.getElementById('sp-logo').style.display='block';
+  } else {
+    document.getElementById('logo-inner').innerHTML='<div class="logo-box-text">Upload<br/>logo</div>';
+    document.getElementById('logo-status').textContent='No logo yet';
+    document.getElementById('sp-logo').style.display='none';
+  }
+  updateSig();renderCompanyBar();LS.save();
+}
+function openAddCompany(){
+  document.getElementById('co-modal-title').textContent='Add company';
+  document.getElementById('co-edit-id').value='';
+  document.getElementById('co-del-btn').style.display='none';
+  ['co-name','co-contact','co-designation','co-email','co-phone','co-website'].forEach(id=>set(id,''));
+  document.getElementById('company-overlay').classList.add('open');
+}
+function openEditCompany(id){
+  const c=companies.find(x=>x.id===id);if(!c)return;
+  document.getElementById('co-modal-title').textContent='Edit company';
+  document.getElementById('co-edit-id').value=id;
+  document.getElementById('co-del-btn').style.display='block';
+  set('co-name',c.name);set('co-contact',c.contact);set('co-designation',c.designation);
+  set('co-email',c.email);set('co-phone',c.phone);set('co-website',c.website||'');
+  document.getElementById('company-overlay').classList.add('open');
+}
+function closeCompanyModal(e){if(!e||e.target===document.getElementById('company-overlay'))document.getElementById('company-overlay').classList.remove('open');}
+function saveCompany(){
+  const editId=document.getElementById('co-edit-id').value;
+  const data={name:v('co-name')||'My Company',contact:v('co-contact'),designation:v('co-designation'),email:v('co-email'),phone:v('co-phone'),website:v('co-website'),logo:editId?(companies.find(x=>x.id===editId)||{}).logo||'':''};
+  if(editId){Object.assign(companies.find(x=>x.id===editId)||{},data);}
+  else{const id='c'+Date.now();companies.push({id,...data});activeId=id;}
+  closeCompanyModal();renderCompanyBar();
+  if(!editId)switchCompany(activeId);
+  LS.save();
+}
+function deleteCompany(){
+  const id=document.getElementById('co-edit-id').value;if(!id)return;
+  companies=companies.filter(x=>x.id!==id);
+  if(activeId===id)activeId=companies[0]?.id||'';
+  closeCompanyModal();renderCompanyBar();LS.save();
+}
+
+/* ─── LOGO ─── */
+function onLogoSelect(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    logo=ev.target.result;
+    document.getElementById('logo-inner').innerHTML=`<img src="${logo}" style="max-width:100%;max-height:100%;object-fit:contain;"/>`;
+    document.getElementById('logo-status').textContent='Logo uploaded ✓';
+    document.getElementById('sp-logo').src=logo;document.getElementById('sp-logo').style.display='block';
+    const c=companies.find(x=>x.id===activeId);if(c)c.logo=logo;
+    renderCompanyBar();LS.save();
+  };r.readAsDataURL(f);
+}
+
+/* ─── STYLE MODAL ─── */
+function openStyleModal(){document.getElementById('style-overlay').classList.add('open');}
+function closeStyleModal(e){if(!e||e.target===document.getElementById('style-overlay'))document.getElementById('style-overlay').classList.remove('open');}
+function saveStyle(){
+  const c=companies.find(x=>x.id===activeId);if(c){c.style=styleText;c.styleInst=v('style-instructions');}
+  document.getElementById('style-status').textContent=styleLoaded?'Style loaded — click to refine':'Upload a past RFQ to match your writing style';
+  closeStyleModal();LS.save();
+}
+function onDrag(e,over){e.preventDefault();document.getElementById('style-zone').classList.toggle('drag',over);}
+function onStyleDrop(e){e.preventDefault();document.getElementById('style-zone').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)processStyle(f);}
+function onStyleSelect(e){const f=e.target.files[0];if(f)processStyle(f);}
+async function processStyle(file){
+  document.getElementById('style-uz-title').textContent='Reading…';
+  try{
+    let text='';
+    if(file.name.endsWith('.pdf')){
+      const buf=await file.arrayBuffer();
+      const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+      for(let i=1;i<=Math.min(pdf.numPages,6);i++){
+        const page=await pdf.getPage(i);
+        const c=await page.getTextContent();
+        text+=c.items.map(s=>s.str).join(' ')+'\n';
+      }
+    } else {text=await file.text();}
+    styleText=text.slice(0,5000);styleLoaded=true;
+    document.getElementById('style-zone').classList.add('loaded');
+    document.getElementById('style-uz-title').textContent='Document loaded ✓';
+    document.getElementById('style-uz-file').textContent=file.name;
+    renderSignals(styleText);
+  }catch(e){document.getElementById('style-uz-title').textContent='Could not read file';}
+}
+function renderSignals(text){
+  const tags=[];
+  if(/hereby|pursuant|sincerely/i.test(text))tags.push('Formal legal tone');
+  if(/dear|السادة|المحترم/i.test(text))tags.push('Personal greeting');
+  if(/^\s*\d+[.)]/m.test(text))tags.push('Numbered items');
+  if(/^\s*[-•]/m.test(text))tags.push('Bullet points');
+  if(/saso|sabic|ksa|kingdom/i.test(text))tags.push('Standards references');
+  if(/vat|ضريبة/i.test(text))tags.push('VAT references');
+  if(/payment|دفع/i.test(text))tags.push('Payment terms');
+  document.getElementById('signals-wrap').style.display='block';
+  document.getElementById('signal-tags').innerHTML=tags.map(t=>`<span class="signal-tag on">${t}</span>`).join('')||'<span class="signal-tag">No patterns detected</span>';
+}
+
+/* ─── AUTOCOMPLETE supplier ─── */
+function acSupplier(val){
+  const list=document.getElementById('ac-supplier');
+  if(!val||val.length<2){list.style.display='none';return;}
+  const matches=supplierHistory.filter(s=>s.toLowerCase().includes(val.toLowerCase()));
+  if(!matches.length){list.style.display='none';return;}
+  list.style.display='block';
+  list.innerHTML=matches.map(s=>`<div class="ac-item" onclick="pickSupplier('${esc(s)}')">${esc(s)}</div>`).join('');
+}
+function pickSupplier(s){set('f-supplier',s);document.getElementById('ac-supplier').style.display='none';}
+document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('ac-supplier').style.display='none';});
+
+/* ─── SIGNATURE PREVIEW ─── */
+function updateSig(){
+  function sp(id,val){const el=document.getElementById(id);el.textContent=val;el.style.display=val?'block':'none';}
+  document.getElementById('sp-name').textContent=v('f-contact')||'Your Name';
+  sp('sp-desig',v('f-designation'));sp('sp-co',v('f-company'));
+  sp('sp-email',v('f-email'));sp('sp-phone',v('f-phone'));sp('sp-web',v('f-website'));
+}
+
+/* ─── ITEMS ─── */
+function addItem(d='',q='1',u='pcs'){
+  const id='i'+Date.now()+Math.random().toString(36).slice(2);
+  items.push({id,d,q,u});renderItems();autoSave();
+}
+function removeItem(id){items=items.filter(i=>i.id!==id);renderItems();autoSave();}
+function upd(id,f,val){const i=items.find(x=>x.id===id);if(i){i[f]=val;autoSave();}}
+function renderItems(){
+  document.getElementById('items-list').innerHTML=items.map(it=>`
+    <div class="item-row">
+      <input type="text" placeholder="Item description" value="${esc(it.d)}" oninput="upd('${it.id}','d',this.value)"/>
+      <input type="number" min="1" value="${esc(it.q)}" class="item-qty" oninput="upd('${it.id}','q',this.value)" style="text-align:center;" inputmode="numeric" pattern="[0-9]*"/>
+      <input type="text" placeholder="pcs" value="${esc(it.u)}" oninput="upd('${it.id}','u',this.value)"/>
+      <button class="rm" onclick="removeItem('${it.id}')">×</button>
+    </div>`).join('');
+}
+
+/* ─── HELPERS ─── */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function refNum(){const d=new Date();return 'RFQ-'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+Math.floor(Math.random()*900+100);}
+function fmtDate(ds,locale){
+  if(!ds)return '';
+  const localeMap={en:'en-GB',ar:'ar-EG-u-nu-latn',fr:'fr-FR',tr:'tr-TR',ur:'ur-PK-u-nu-latn',id:'id-ID',de:'de-DE',es:'es-ES',zh:'zh-CN',ja:'ja-JP',ko:'ko-KR'};
+  // Always use latn (western) numerals even for RTL languages
+  const d=new Date(ds+'T00:00:00');
+  return d.toLocaleDateString(localeMap[locale]||'en-GB',{day:'2-digit',month:'long',year:'numeric',numberingSystem:'latn'});
+}
+
+/* ─── LANGUAGE STRINGS ─── */
+const L={
+  en:{rfq:'Request for Quotation',subject:'Subject',intro:'Introduction',items:'Requested Items',terms:'Terms & Conditions',closing:'Next Steps',dear:'Dear',vendor:'Vendor to fill',validity:'Quote validity',deadline:'Submission deadline',startdate:'Project start',payment:'Payment terms',delivery:'Delivery',days:'30 days',tbc:'TBC',
+    th:['#','Description','Qty','Unit','Unit Price'],
+    terms_list:(pay)=>['Quotation must remain valid for a minimum of 30 days from submission.','Delivery to the stated address only. Partial shipments require prior written consent.',`Payment: ${pay} from receipt of verified invoice.`,'All goods must comply with applicable standards. Attach relevant certifications with your quote.'],
+    closing_text:(email,contact,desig)=>`Please send your quotation to ${email||'our procurement team'}${contact?' (Attn: '+contact+(desig?', '+desig:'')+')'||'':''}. Kindly confirm receipt within 48 hours.`,
+    intro_text:{formal:(c,s,p)=>`We are writing on behalf of ${c} to formally request your best quotation for: ${p}. ${s} has been identified as a preferred vendor and we look forward to a detailed proposal from your team.`,friendly:(c,s,p)=>`Hope this finds you well. The team at ${c} is sourcing for ${p} and thought of ${s} immediately given our positive track record. A detailed quote at your earliest convenience would be appreciated.`,urgent:(c,s,p)=>`${c} requires an urgent quotation for ${p}. This is time-sensitive — submissions after the deadline below will not be considered.`},
+    payLabels:{net30:'Net 30 days',net60:'Net 60 days',advance:'Advance payment',lc:'Letter of Credit'}},
+  ar:{rfq:'طلب عروض أسعار',subject:'الموضوع',intro:'مقدمة',items:'الأصناف المطلوبة',terms:'الشروط والأحكام',closing:'الخطوات التالية',dear:'السيد/السيدة',vendor:'يُعبأ من المورد',validity:'صلاحية العرض',deadline:'الموعد النهائي',startdate:'تاريخ البدء',payment:'شروط الدفع',delivery:'التسليم',days:'30 يوماً',tbc:'يُحدد',
+    th:['#','البيان','الكمية','الوحدة','سعر الوحدة'],
+    terms_list:(pay)=>['يجب أن يظل عرض الأسعار سارياً لمدة لا تقل عن 30 يوماً.','يشترط التسليم إلى العنوان المحدد. يستلزم التسليم الجزئي موافقة كتابية مسبقة.',`شروط الدفع: ${pay} من استلام الفاتورة المعتمدة.`,'يجب استيفاء اشتراطات المعايير المعتمدة. يُرجى إرفاق الشهادات مع العرض.'],
+    closing_text:(email,contact,desig)=>`يُرجى إرسال عرضكم إلى ${email||'فريق المشتريات'}${contact?' (عناية: '+contact+(desig?'، '+desig:'')+')'||'':''}. نرجو تأكيد الاستلام خلال 48 ساعة.`,
+    intro_text:{formal:(c,s,p)=>`يسعد شركة ${c} التواصل معكم لتقديم هذا الطلب الرسمي لعروض الأسعار المتعلق بـ${p}. وقد تم اختيار ${s} كمورد معتمد لدينا.`,friendly:(c,s,p)=>`نأمل أن يجدكم هذا الخطاب بخير. يعمل فريق ${c} على توفير متطلبات ${p} وقد تبادر اسم ${s} فوراً نظراً للتعاون الجيد.`,urgent:(c,s,p)=>`تحتاج ${c} إلى عرض أسعار عاجل لـ${p}. هذا الطلب ذو أولوية قصوى.`},
+    payLabels:{net30:'صافي 30 يوم',net60:'صافي 60 يوم',advance:'دفع مقدم',lc:'خطاب اعتماد'}},
+  fr:{rfq:'Demande de Devis',subject:'Objet',intro:'Introduction',items:'Articles demandés',terms:'Termes et Conditions',closing:'Prochaines étapes',dear:'Cher/Chère',vendor:'À remplir',validity:'Validité',deadline:'Date limite',startdate:'Date de début',payment:'Paiement',delivery:'Livraison',days:'30 jours',tbc:'À confirmer',
+    th:['#','Description','Qté','Unité','Prix unitaire'],
+    terms_list:(pay)=>['Le devis doit rester valable 30 jours minimum.','Livraison uniquement à l\'adresse indiquée. Livraisons partielles sur accord écrit préalable.',`Paiement : ${pay} à réception de la facture vérifiée.`,'Tous les produits doivent être conformes aux normes applicables.'],
+    closing_text:(email,contact,desig)=>`Veuillez envoyer votre devis à ${email||'notre équipe achats'}${contact?' (À l\'att. de : '+contact+(desig?', '+desig:'')+')'||'':''}. Merci de confirmer la réception sous 48h.`,
+    intro_text:{formal:(c,s,p)=>`Nous écrivons au nom de ${c} pour demander formellement votre meilleur devis pour : ${p}. ${s} a été retenu comme fournisseur privilégié.`,friendly:(c,s,p)=>`J'espère que ce message vous trouve en bonne forme. ${c} recherche des fournisseurs pour ${p} et a immédiatement pensé à ${s}.`,urgent:(c,s,p)=>`${c} nécessite un devis urgent pour ${p}. Les soumissions après la date limite ne seront pas prises en compte.`},
+    payLabels:{net30:'Net 30 jours',net60:'Net 60 jours',advance:'Paiement anticipé',lc:'Lettre de crédit'}},
+  tr:{rfq:'Teklif Talebi',subject:'Konu',intro:'Giriş',items:'Talep Edilen Ürünler',terms:'Şartlar',closing:'Sonraki Adımlar',dear:'Sayın',vendor:'Tedarikçi dolduracak',validity:'Geçerlilik',deadline:'Son tarih',startdate:'Başlangıç tarihi',payment:'Ödeme',delivery:'Teslimat',days:'30 gün',tbc:'Belirlenecek',
+    th:['#','Açıklama','Miktar','Birim','Birim Fiyat'],
+    terms_list:(pay)=>['Teklif en az 30 gün geçerli kalmalıdır.','Teslimat yalnızca belirtilen adrese yapılmalıdır.',`Ödeme: ${pay}, faturanın alınmasından itibaren.`,'Tüm ürünler geçerli standartlara uygun olmalıdır.'],
+    closing_text:(email,contact,desig)=>`Teklifinizi ${email||'satın alma ekibimize'}${contact?' (İlg.: '+contact+(desig?', '+desig:'')+')'||'':''}gönderin. 48 saat içinde alındığını onaylayın.`,
+    intro_text:{formal:(c,s,p)=>`${c} adına, ${p} için en iyi teklifinizi talep etmek amacıyla yazıyoruz. ${s} tercih edilen tedarikçi olarak belirlenmiştir.`,friendly:(c,s,p)=>`Umarız bu mesaj sizi iyi bulur. ${c} ekibi ${p} için kaynak arıyor ve ${s} hemen akla geldi.`,urgent:(c,s,p)=>`${c}, ${p} için acil teklif talep etmektedir. Son tarihten sonra alınan teklifler değerlendirmeye alınmayacaktır.`},
+    payLabels:{net30:'Net 30 gün',net60:'Net 60 gün',advance:'Peşin ödeme',lc:'Akreditif'}},
+  ur:{rfq:'قیمت کی درخواست',subject:'موضوع',intro:'تعارف',items:'مطلوبہ اشیاء',terms:'شرائط',closing:'اگلے اقدامات',dear:'محترم',vendor:'سپلائر پُر کرے',validity:'مدت',deadline:'آخری تاریخ',startdate:'شروع کی تاریخ',payment:'ادائیگی',delivery:'ترسیل',days:'30 دن',tbc:'طے ہوگا',
+    th:['#','تفصیل','مقدار','اکائی','فی اکائی قیمت'],
+    terms_list:(pay)=>['کوٹیشن کم از کم 30 دن کے لیے درست ہونی چاہیے۔','ترسیل صرف مذکورہ پتے پر ہوگی۔',`ادائیگی: ${pay} فاتورہ موصول ہونے کے بعد۔`,'تمام اشیاء متعلقہ معیارات کے مطابق ہونی چاہئیں۔'],
+    closing_text:(email,contact,desig)=>`براہ کرم کوٹیشن ${email||'ہماری خریداری ٹیم کو'}${contact?' (توجہ: '+contact+')'||'':''}بھیجیں۔ 48 گھنٹوں میں موصولی کی تصدیق کریں۔`,
+    intro_text:{formal:(c,s,p)=>`ہم ${c} کی جانب سے ${p} کے لیے ${s} سے باضابطہ قیمت کی درخواست کر رہے ہیں۔`,friendly:(c,s,p)=>`امید ہے یہ پیغام آپ کو اچھے حال میں پائے۔ ${c} ${p} کے لیے سپلائرز تلاش کر رہی ہے۔`,urgent:(c,s,p)=>`${c} کو ${p} کے لیے فوری قیمت درکار ہے۔ آخری تاریخ کے بعد کوئی کوٹیشن قابل غور نہیں ہوگی۔`},
+    payLabels:{net30:'خالص 30 دن',net60:'خالص 60 دن',advance:'پیشگی ادائیگی',lc:'لیٹر آف کریڈٹ'}},
+  id:{rfq:'Permintaan Penawaran',subject:'Perihal',intro:'Pendahuluan',items:'Barang Diminta',terms:'Syarat & Ketentuan',closing:'Langkah Selanjutnya',dear:'Yth.',vendor:'Diisi vendor',validity:'Masa berlaku',deadline:'Batas waktu',startdate:'Tanggal mulai',payment:'Pembayaran',delivery:'Pengiriman',days:'30 hari',tbc:'Dikonfirmasi',
+    th:['#','Deskripsi','Jml','Satuan','Harga Satuan'],
+    terms_list:(pay)=>['Penawaran harus berlaku minimal 30 hari sejak pengajuan.','Pengiriman hanya ke alamat yang ditentukan.',`Pembayaran: ${pay} sejak penerimaan faktur.`,'Semua barang harus memenuhi standar yang berlaku.'],
+    closing_text:(email,contact,desig)=>`Kirimkan penawaran ke ${email||'tim pengadaan kami'}${contact?' (u.p.: '+contact+')'||'':''}. Mohon konfirmasi penerimaan dalam 48 jam.`,
+    intro_text:{formal:(c,s,p)=>`Kami menulis atas nama ${c} untuk meminta penawaran terbaik Anda untuk: ${p}. ${s} telah diidentifikasi sebagai vendor pilihan kami.`,friendly:(c,s,p)=>`Semoga pesan ini menemukan Anda dalam keadaan baik. ${c} mencari pemasok untuk ${p} dan langsung memikirkan ${s}.`,urgent:(c,s,p)=>`${c} membutuhkan penawaran segera untuk ${p}. Penawaran setelah batas waktu tidak akan dipertimbangkan.`},
+    payLabels:{net30:'Net 30 hari',net60:'Net 60 hari',advance:'Pembayaran di muka',lc:'Letter of Credit'}},
+  de:{rfq:'Angebotsanfrage',subject:'Betreff',intro:'Einleitung',items:'Angeforderte Artikel',terms:'Bedingungen',closing:'Nächste Schritte',dear:'Sehr geehrte/r',vendor:'Vom Anbieter auszufüllen',validity:'Gültigkeit',deadline:'Abgabefrist',startdate:'Startdatum',payment:'Zahlung',delivery:'Lieferung',days:'30 Tage',tbc:'Zu bestätigen',
+    th:['#','Beschreibung','Menge','Einheit','Stückpreis'],
+    terms_list:(pay)=>['Das Angebot muss mindestens 30 Tage gültig bleiben.','Lieferung nur an die angegebene Adresse.',`Zahlung: ${pay} ab Eingang der Rechnung.`,'Alle Waren müssen den geltenden Normen entsprechen.'],
+    closing_text:(email,contact,desig)=>`Senden Sie Ihr Angebot an ${email||'unser Einkaufsteam'}${contact?' (z.H.: '+contact+')'||'':''}. Bitte bestätigen Sie den Eingang innerhalb von 48 Stunden.`,
+    intro_text:{formal:(c,s,p)=>`Wir schreiben im Namen von ${c}, um Ihr bestes Angebot für ${p} offiziell anzufordern. ${s} wurde als bevorzugter Lieferant identifiziert.`,friendly:(c,s,p)=>`Ich hoffe, diese Nachricht erreicht Sie wohlauf. Das Team von ${c} sucht Lieferanten für ${p} und hat sofort an ${s} gedacht.`,urgent:(c,s,p)=>`${c} benötigt dringend ein Angebot für ${p}. Nach Ablauf der Frist eingegangene Angebote werden nicht berücksichtigt.`},
+    payLabels:{net30:'Netto 30 Tage',net60:'Netto 60 Tage',advance:'Vorauszahlung',lc:'Akkreditiv'}},
+  es:{rfq:'Solicitud de Cotización',subject:'Asunto',intro:'Introducción',items:'Artículos Solicitados',terms:'Términos y Condiciones',closing:'Próximos Pasos',dear:'Estimado/a',vendor:'A completar',validity:'Validez',deadline:'Fecha límite',startdate:'Fecha de inicio',payment:'Pago',delivery:'Entrega',days:'30 días',tbc:'Por confirmar',
+    th:['#','Descripción','Cant.','Unidad','Precio unitario'],
+    terms_list:(pay)=>['La cotización debe ser válida por mínimo 30 días.',`Pago: ${pay} desde la recepción de la factura verificada.`,'Entrega únicamente a la dirección indicada.','Todos los bienes deben cumplir con las normas aplicables.'],
+    closing_text:(email,contact,desig)=>`Envíe su cotización a ${email||'nuestro equipo de compras'}${contact?' (A/A: '+contact+')'||'':''}. Confirme recepción en 48 horas.`,
+    intro_text:{formal:(c,s,p)=>`Nos dirigimos a ${s} en nombre de ${c} para solicitar formalmente su mejor cotización para: ${p}.`,friendly:(c,s,p)=>`Esperamos que este mensaje les encuentre bien. ${c} busca proveedores para ${p} y pensó inmediatamente en ${s}.`,urgent:(c,s,p)=>`${c} requiere una cotización urgente para ${p}. Las propuestas tras la fecha límite no serán consideradas.`},
+    payLabels:{net30:'Neto 30 días',net60:'Neto 60 días',advance:'Pago anticipado',lc:'Carta de crédito'}},
+  zh:{rfq:'询价函',subject:'主题',intro:'说明',items:'询价清单',terms:'条款与条件',closing:'后续步骤',dear:'尊敬的',vendor:'由供应商填写',validity:'报价有效期',deadline:'截止日期',startdate:'项目开始日期',payment:'付款条款',delivery:'交货地点',days:'30天',tbc:'待确认',
+    th:['序号','品名/描述','数量','单位','单价'],
+    terms_list:(pay)=>['报价自提交之日起至少有效30天。','货物须送至指定地址，部分交货须事先书面同意。',`付款方式：${pay}，自收到经核实发票起计算。`,'所有货物须符合适用标准，请随报价附上相关证书。'],
+    closing_text:(email,contact,desig)=>`请将报价发送至 ${email||'我们的采购团队'}${contact?' （收件人：'+contact+(desig?'，'+desig:'')+'）'||'':''}。请在48小时内确认收件。`,
+    intro_text:{formal:(c,s,p)=>`兹代表${c}，就${p}事宜正式向${s}发出询价邀请，请贵方提供详细且具竞争力的报价。`,friendly:(c,s,p)=>`您好！${c}目前正在为${p}进行采购，第一时间想到了${s}，期待收到您的详细报价。`,urgent:(c,s,p)=>`${c}现就${p}发出紧急询价，请务必在下述截止日期前提交报价，逾期恕不受理。`},
+    payLabels:{net30:'净30天',net60:'净60天',advance:'预付款',lc:'信用证'}},
+  ja:{rfq:'見積依頼書',subject:'件名',intro:'はじめに',items:'依頼品目',terms:'条件',closing:'次のステップ',dear:'拝啓',vendor:'サプライヤー記入',validity:'有効期限',deadline:'提出期限',startdate:'開始日',payment:'支払条件',delivery:'納品場所',days:'30日間',tbc:'確認中',
+    th:['No.','品名','数量','単位','単価'],
+    terms_list:(pay)=>['見積は提出日から最低30日間有効とすること。','納品は指定住所のみとし、分割納品は事前書面承認が必要。',`支払条件：${pay}、検収済み請求書受領後。`,'すべての製品は適用基準に準拠すること。'],
+    closing_text:(email,contact,desig)=>`見積書は ${email||'購買チーム'}${contact?' （担当：'+contact+(desig?'、'+desig:'')+'）'||'':''} 宛にご送付ください。48時間以内に受領確認をお願いします。`,
+    intro_text:{formal:(c,s,p)=>`${c}を代表いたしまして、${p}に関する件で${s}様へ正式に見積依頼を申し上げます。`,friendly:(c,s,p)=>`お世話になっております。${c}では現在、${p}の調達を進めており、これまでのお取引の実績から${s}様にご連絡いたしました。`,urgent:(c,s,p)=>`${c}では${p}について至急見積をお願いしたく存じます。期日以降の提出はご対応いたしかねますのでご了承ください。`},
+    payLabels:{net30:'支払期限30日',net60:'支払期限60日',advance:'前払い',lc:'信用状'}},
+  ko:{rfq:'견적 요청서',subject:'제목',intro:'소개',items:'요청 품목',terms:'조건',closing:'다음 단계',dear:'귀하',vendor:'공급업체 기재',validity:'유효 기간',deadline:'제출 기한',startdate:'시작일',payment:'결제 조건',delivery:'납품 장소',days:'30일',tbc:'확인 예정',
+    th:['No.','품목','수량','단위','단가'],
+    terms_list:(pay)=>['견적서는 제출일로부터 최소 30일간 유효해야 합니다.','납품은 지정된 주소로만 가능하며, 부분 납품 시 사전 서면 동의가 필요합니다.',`결제: 검증된 청구서 수령 후 ${pay}.`,'모든 제품은 관련 기준을 준수해야 합니다.'],
+    closing_text:(email,contact,desig)=>`견적서를 ${email||'구매팀'}${contact?' （담당: '+contact+(desig?', '+desig:'')+'）'||'':''}으로 보내주시기 바랍니다. 48시간 내에 수신 확인 부탁드립니다.`,
+    intro_text:{formal:(c,s,p)=>`${c}를 대표하여 ${p}에 관한 건으로 ${s}에 공식 견적을 요청드립니다.`,friendly:(c,s,p)=>`안녕하세요. ${c}에서는 현재 ${p}와 관련하여 공급업체를 찾고 있으며, 그동안의 협력 관계를 바탕으로 ${s}에 연락드립니다.`,urgent:(c,s,p)=>`${c}에서 ${p}에 대한 긴급 견적을 요청드립니다. 기한 이후 제출된 견적은 검토하지 않습니다.`},
+    payLabels:{net30:'30일 후 결제',net60:'60일 후 결제',advance:'선불',lc:'신용장'}}
+};
+
+function isRTL(lang){return ['ar','ur'].includes(lang);}
+
+/* ─── BUILD DOCUMENT ─── */
+function buildDoc(data){
+  const lang=data.lang||'en';const l=L[lang]||L.en;
+  const rtl=isRTL(lang);const rtlC=rtl?'rtl':'';
+  const metaAlign=rtl?'text-align:left':'text-align:right';
+  const ref=refNum();
+  const today=fmtDate(new Date().toISOString().slice(0,10),lang);
+  const startStr=data.startdate?fmtDate(data.startdate,lang):'';
+  const deadlineStr=data.deadline?fmtDate(data.deadline,lang):l.tbc;
+  const payLabel=(l.payLabels||{})[data.payment]||'Net 30 days';
+  const intro=(l.intro_text[data.tone]||l.intro_text.formal)(data.company,data.supplier,data.project);
+  const termsList=l.terms_list(payLabel);
+  const closingTxt=l.closing_text(data.email,data.contact,data.designation);
+  const salutation=data.receiver?`<div class="doc-salutation">${l.dear} ${esc(data.receiver)},</div>`:'';
+  const logoHTML=data.logo?`<img src="${data.logo}" class="doc-logo-img" alt="logo"/>`:`<div class="doc-logo-fb">Logo</div>`;
+  const sigLogoHTML=data.logo?`<img src="${data.logo}" class="doc-sig-logo" alt="logo"/>`:'';
+  const notesHTML=data.notes?`<div class="doc-sec"><h3>${l.terms}</h3><div class="doc-text">${esc(data.notes)}</div></div>`:'';
+  const thHTML=l.th.map(h=>`<th>${h}</th>`).join('');
+  const rowsHTML=data.items.map((it,i)=>`<tr><td>${i+1}</td><td>${esc(it.d)}</td><td style="text-align:center">${esc(it.q)}</td><td>${esc(it.u)}</td><td style="color:#9a9a93;font-style:italic">${l.vendor}</td></tr>`).join('');
+  const startRow=startStr?`<div class="term-c"><div class="term-c-lbl">${l.startdate}</div><div class="term-c-val">${startStr}</div></div>`:'';
+  return `<div class="${rtlC}">
+    <div class="doc-hd">
+      <div class="doc-logo-block">${logoHTML}<div><div class="doc-co-name">${esc(data.company)}</div><div class="doc-co-sub">${l.rfq}</div></div></div>
+      <div class="doc-meta" style="${metaAlign}"><div class="doc-ref">${ref}</div><br/><strong>${today}</strong><br/>${esc(data.supplier)}<br/>${data.delivery?esc(data.delivery):''}</div>
+    </div>
+    <div class="doc-bd">
+      ${salutation}
+      <div class="doc-sec"><h3>${l.subject}</h3><div class="doc-subject">${l.rfq}: ${esc(data.project)}</div></div>
+      <div class="doc-sec"><h3>${l.intro}</h3><div class="doc-text">${intro}</div></div>
+      <div class="doc-sec"><h3>${l.items}</h3><table class="doc-table"><thead><tr>${thHTML}</tr></thead><tbody>${rowsHTML}</tbody></table></div>
+      <div class="doc-sec"><h3>${l.terms}</h3>
+        <div class="doc-terms">
+          <div class="term-c"><div class="term-c-lbl">${l.validity}</div><div class="term-c-val">${l.days}</div></div>
+          ${startRow}
+          <div class="term-c"><div class="term-c-lbl">${l.deadline}</div><div class="term-c-val">${deadlineStr}</div></div>
+          <div class="term-c"><div class="term-c-lbl">${l.payment}</div><div class="term-c-val">${payLabel}</div></div>
+          <div class="term-c"><div class="term-c-lbl">${l.delivery}</div><div class="term-c-val">${esc(data.delivery)||l.tbc}</div></div>
+        </div>
+        <div class="terms-list">${termsList.map(t=>`• ${t}`).join('<br/>')}</div>
+      </div>
+      ${notesHTML}
+      <div class="doc-sec"><h3>${l.closing}</h3><div class="doc-text">${closingTxt}</div></div>
+    </div>
+    <div class="doc-sig">
+      <div class="doc-sig-left"><div class="doc-sig-bar"></div>
+        <div class="doc-sig-info">
+          <strong>${esc(data.contact||(rtl?'قسم المشتريات':'Procurement'))}</strong>
+          ${data.designation?`<em>${esc(data.designation)}</em>`:''}
+          ${data.company?`<span>${esc(data.company)}</span>`:''}
+          ${data.email?`<span>${esc(data.email)}</span>`:''}
+          ${data.phone?`<span>${esc(data.phone)}</span>`:''}
+          ${data.website?`<span>${esc(data.website)}</span>`:''}
+        </div>
+      </div>${sigLogoHTML}
+    </div>
+  </div>`;
+}
+
+/* ─── GENERATE ─── */
+function generate(){
+  const company=v('f-company'),supplier=v('f-supplier'),project=v('f-project');
+  document.getElementById('err').innerHTML='';
+  if(!company||!supplier||!project){document.getElementById('err').innerHTML='<div class="err-msg">Please fill in company name, supplier, and project details.</div>';return;}
+  if(!items.length||!items[0].d){document.getElementById('err').innerHTML='<div class="err-msg">Please add at least one item.</div>';return;}
+
+  // save supplier to history
+  if(supplier&&!supplierHistory.includes(supplier)){supplierHistory.unshift(supplier);if(supplierHistory.length>20)supplierHistory.pop();}
+  LS.save();
+
+  const btn=document.getElementById('gen-btn');btn.disabled=true;document.getElementById('btn-text').textContent='Generating…';
+  document.getElementById('empty-state').style.display='none';document.getElementById('out-panel').style.display='block';document.getElementById('doc-paper').innerHTML='';
+  const prog=document.getElementById('prog');prog.style.width='0%';
+  let p=0;const tick=setInterval(()=>{p=Math.min(p+Math.random()*14,90);prog.style.width=p+'%';},200);
+  setTimeout(()=>{
+    clearInterval(tick);prog.style.width='100%';
+    const data={company,supplier,project,receiver:v('f-receiver'),contact:v('f-contact'),designation:v('f-designation'),email:v('f-email'),phone:v('f-phone'),website:v('f-website'),startdate:v('f-startdate'),deadline:v('f-deadline'),delivery:v('f-delivery'),lang:v('f-lang')||'en',tone:v('f-tone')||'formal',payment:v('f-payment')||'net30',notes:v('f-notes'),logo,items:[...items]};
+    document.getElementById('doc-paper').innerHTML=buildDoc(data);
+    setTimeout(()=>prog.style.width='0%',700);
+    btn.disabled=false;document.getElementById('btn-text').textContent='Generate document';
+    if(window.posthog)posthog.capture('rfq_generated',{language:data.lang,tone:data.tone,company_count:companies.length});
+    if(wtStep>0)wtAdvance();
+  },1500);
+}
+
+function copyDoc(){
+  const text=document.getElementById('doc-paper')?.innerText||'';
+  navigator.clipboard.writeText(text).then(()=>{const b=event.target;b.textContent='Copied!';setTimeout(()=>b.textContent='Copy text',1600);});
+}
+
+/* ─── TOOLTIP TOUR ─── */
+const TOUR_STEPS=[
+  {el:'#sec-brand',title:'Step 1 · Brand & style',body:'Upload your company logo here. You can also teach the AI your writing style by uploading a past RFQ.'},
+  {el:'#sec-who',title:'Step 2 · Your details',body:'Fill in your name, title, email and phone. The signature preview updates live. Add a receiver name for a personal "Dear…" opening.'},
+  {el:'#sec-what',title:'Step 3 · Project details',body:'Enter the supplier, project description, start date, and deadline. Dates always display in Western numerals.'},
+  {el:'#sec-items',title:'Step 4 · Items list',body:'Add every product or service you need. Quantities always appear in Western numerals regardless of the output language.'},
+  {el:'#sec-settings',title:'Step 5 · Language & tone',body:'Choose from 11 languages — all completely free. Pick the tone that fits your relationship with the supplier.'},
+  {el:'#gen-btn',title:'Step 6 · Generate',body:'Click to produce your document. Copy the text or save as a clean PDF — no watermarks, no AI labels.'}
+];
+let tourStep=0;
+function startTour(){tourStep=0;showTourStep();}
+function showTourStep(){
+  if(tourStep>=TOUR_STEPS.length){endTour();return;}
+  const s=TOUR_STEPS[tourStep];
+  const el=document.querySelector(s.el);
+  if(!el){nextTourStep();return;}
+  const r=el.getBoundingClientRect();
+  document.getElementById('tour-overlay').style.display='block';
+  const spot=document.getElementById('tour-spotlight');
+  spot.style.cssText=`top:${r.top-6}px;left:${r.left-6}px;width:${r.width+12}px;height:${r.height+12}px;`;
+  const tip=document.getElementById('tour-tooltip');
+  document.getElementById('tt-title').textContent=s.title;
+  document.getElementById('tt-body').textContent=s.body;
+  document.getElementById('tt-progress').textContent=`${tourStep+1} of ${TOUR_STEPS.length}`;
+  document.getElementById('tt-next-btn').textContent=tourStep===TOUR_STEPS.length-1?'Done ✓':'Next →';
+  // position tooltip below or above
+  const below=r.bottom+160<window.innerHeight;
+  tip.style.cssText=`top:${below?r.bottom+14:r.top-160}px;left:${Math.min(r.left,window.innerWidth-296)}px;`;
+}
+function nextTourStep(){tourStep++;showTourStep();}
+function endTour(){document.getElementById('tour-overlay').style.display='none';localStorage.setItem('rfq_toured','1');}
+
+/* ─── WALKTHROUGH PANEL ─── */
+function showWalkthrough(){
+  document.getElementById('walkthrough').style.display='block';renderWt();
+}
+function closeWalkthrough(){document.getElementById('walkthrough').style.display='none';localStorage.setItem('rfq_walked','1');}
+function renderWt(){
+  document.getElementById('wt-steps').innerHTML=WT_STEPS.map((s,i)=>`
+    <div class="wt-step ${i===wtStep?'active':i<wtStep?'done':''}">
+      <div class="wt-step-num">${i<wtStep?'✓':i+1}</div>
+      <div class="wt-step-text">${s.title}</div>
+    </div>`).join('');
+  document.getElementById('wt-next-btn').textContent=wtStep>=WT_STEPS.length-1?'Finish ✓':'Next step →';
+}
+function wtNext(){if(wtStep<WT_STEPS.length-1){wtStep++;renderWt();}else closeWalkthrough();}
+function wtPrev(){if(wtStep>0){wtStep--;renderWt();}}
+function wtAdvance(){if(wtStep<WT_STEPS.length-1){wtStep++;renderWt();}}
+
+/* ─── INIT ─── */
+window.addEventListener('load',()=>{
+  LS.load();
+
+  // defaults
+  const today=new Date().toISOString().slice(0,10);
+  const deadline=new Date(Date.now()+14*864e5).toISOString().slice(0,10);
+  if(!document.getElementById('f-startdate').value)set('f-startdate',today);
+  if(!document.getElementById('f-deadline').value)set('f-deadline',deadline);
+
+  if(!items.length)addItem();
+  updateSig();
+
+  // companies
+  if(!companies.length){companies=[{id:'c0',name:'My Company',contact:'',designation:'',email:'',phone:'',website:'',logo:'',style:'',styleInst:''}];activeId='c0';}
+  if(!activeId||!companies.find(x=>x.id===activeId))activeId=companies[0].id;
+  renderCompanyBar();
+
+  // first visit
+  if(!localStorage.getItem('rfq_walked'))showWalkthrough();
+  if(!localStorage.getItem('rfq_toured')&&localStorage.getItem('rfq_walked'))setTimeout(startTour,800);
+});
+</script>
+</body>
+</html>
