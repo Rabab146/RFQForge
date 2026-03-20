@@ -4,283 +4,280 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>RFQforge — Generate RFQ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --display:'DM Serif Display',serif;--body:'Plus Jakarta Sans',sans-serif;
-  --ink:#0f0f0d;--muted:#52524e;--hint:#9a9a93;
-  --bg:#fafaf7;--surface:#f2f1ed;--card:#fff;
-  --border:#e4e3dd;--border-mid:#ccc9c0;
-  --green:#1a8f67;--green-pale:#e8f7f1;--green-mid:#6dcfad;--green-deep:#0d5c42;
-  --amber:#b8740f;--amber-pale:#fef3dc;
-  --red:#b91c1c;--red-pale:#fef2f2;
-  --blue:#1d4ed8;--blue-pale:#eff6ff;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  --ink:#0a0a0a;--ink2:#111;--muted:#6b7280;--hint:#9ca3af;
+  --bg:#fff;--surface:#f9fafb;--surface2:#f3f4f6;
+  --border:#e5e7eb;--border2:#d1d5db;
+  --green:#059669;--green-bg:#ecfdf5;--green-border:#a7f3d0;--green-text:#065f46;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-border:#fcd34d;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fca5a5;
+  --blue:#2563eb;--blue-bg:#eff6ff;
+  --dark:#0a0a0a;
 }
-html,body{font-family:var(--body);background:var(--bg);color:var(--ink);height:100%;overflow:hidden;}
+html,body{font-family:var(--font);background:var(--surface);color:var(--ink);height:100%;overflow:hidden;-webkit-font-smoothing:antialiased;}
 
-/* NAV */
-nav{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 1.4rem;background:var(--card);border-bottom:0.5px solid var(--border);flex-shrink:0;}
-.nav-brand{display:flex;align-items:center;gap:8px;text-decoration:none;}
-.nav-mark{width:26px;height:26px;border-radius:7px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.nav-name{font-family:var(--display);font-size:17px;color:var(--ink);}
-.nav-name em{color:var(--green);font-style:normal;}
-.nav-right{display:flex;align-items:center;gap:8px;}
-.nav-btn{font-size:12px;color:var(--muted);background:transparent;border:0.5px solid var(--border);border-radius:7px;padding:4px 11px;cursor:pointer;text-decoration:none;transition:all .15s;font-family:var(--body);}
+/* ─── NAV ─── */
+nav{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;}
+.nav-brand{display:flex;align-items:center;gap:7px;text-decoration:none;}
+.nav-logo{width:24px;height:24px;background:var(--dark);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nav-name{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-.3px;}
+.nav-name span{color:var(--green);}
+.nav-right{display:flex;align-items:center;gap:7px;}
+.nav-btn{font-size:12.5px;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;text-decoration:none;transition:all .15s;font-family:var(--font);font-weight:500;}
 .nav-btn:hover{border-color:var(--ink);color:var(--ink);}
-.nav-btn.blue{background:var(--blue-pale);border-color:#93c5fd;color:var(--blue);}
+.nav-btn.tour-btn{background:var(--blue-bg);border-color:#93c5fd;color:var(--blue);}
 
-/* LANG BAR — prominent, always visible */
-.lang-bar{height:40px;display:flex;align-items:center;gap:6px;padding:0 1.4rem;background:var(--surface);border-bottom:0.5px solid var(--border);overflow-x:auto;flex-shrink:0;}
-.lang-bar-label{font-size:10.5px;color:var(--hint);white-space:nowrap;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-right:4px;flex-shrink:0;}
-.lang-btn{display:flex;align-items:center;gap:5px;background:var(--card);border:0.5px solid var(--border);border-radius:20px;padding:3px 11px;cursor:pointer;font-size:12px;color:var(--muted);white-space:nowrap;transition:all .15s;font-family:var(--body);flex-shrink:0;}
+/* ─── TOP BARS ─── */
+.top-bar{display:flex;align-items:center;gap:6px;padding:0 16px;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;white-space:nowrap;}
+.top-bar::-webkit-scrollbar{display:none;}
+.bar-label{font-size:10px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.8px;margin-right:4px;flex-shrink:0;}
+.lang-bar{height:38px;}
+.lang-btn{display:inline-flex;align-items:center;gap:4px;background:transparent;border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12.5px;color:var(--muted);transition:all .15s;font-family:var(--font);font-weight:500;flex-shrink:0;}
 .lang-btn:hover{border-color:var(--ink);color:var(--ink);}
-.lang-btn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
-.lang-flag{font-size:14px;}
+.lang-btn.active{background:var(--dark);color:#fff;border-color:var(--dark);}
 
-/* COMPANY BAR */
-.company-bar{height:40px;display:flex;align-items:center;gap:7px;padding:0 1.4rem;background:var(--card);border-bottom:0.5px solid var(--border);overflow-x:auto;flex-shrink:0;}
-.cb-label{font-size:10px;color:var(--hint);white-space:nowrap;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-right:2px;flex-shrink:0;}
-.company-chip{display:flex;align-items:center;gap:5px;background:var(--surface);border:0.5px solid var(--border);border-radius:20px;padding:3px 11px;cursor:pointer;font-size:12px;color:var(--muted);white-space:nowrap;transition:all .15s;flex-shrink:0;}
-.company-chip:hover{border-color:var(--ink);color:var(--ink);}
-.company-chip.active{background:var(--ink);color:#fff;border-color:var(--ink);}
-.co-edit{font-size:10px;opacity:.5;margin-left:2px;cursor:pointer;}
+.company-bar{height:36px;}
+.co-chip{display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12.5px;color:var(--muted);transition:all .15s;flex-shrink:0;font-weight:500;}
+.co-chip:hover{border-color:var(--ink);color:var(--ink);}
+.co-chip.active{background:var(--dark);color:#fff;border-color:var(--dark);}
+.co-edit{font-size:11px;opacity:.5;margin-left:2px;}
 .co-edit:hover{opacity:1;}
-.add-co-btn{display:flex;align-items:center;gap:4px;background:transparent;border:0.5px dashed var(--border-mid);border-radius:20px;padding:3px 11px;cursor:pointer;font-size:12px;color:var(--hint);white-space:nowrap;transition:all .15s;font-family:var(--body);flex-shrink:0;}
-.add-co-btn:hover{border-color:var(--green);color:var(--green);}
+.add-co{display:inline-flex;align-items:center;gap:4px;background:transparent;border:1px dashed var(--border2);border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12.5px;color:var(--hint);transition:all .15s;font-family:var(--font);flex-shrink:0;}
+.add-co:hover{border-color:var(--green);color:var(--green);}
 
-/* TEMPLATE BAR */
-.tmpl-bar{height:40px;display:flex;align-items:center;gap:6px;padding:0 1.4rem;background:var(--amber-pale);border-bottom:0.5px solid #f5d28a;overflow-x:auto;flex-shrink:0;}
-.tmpl-bar-label{font-size:10.5px;color:var(--amber);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-right:4px;white-space:nowrap;flex-shrink:0;}
-.tmpl-btn{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.7);border:0.5px solid #f5d28a;border-radius:20px;padding:3px 11px;cursor:pointer;font-size:12px;color:var(--amber);white-space:nowrap;transition:all .15s;font-family:var(--body);flex-shrink:0;}
+.tmpl-bar{height:36px;background:var(--amber-bg);border-bottom:1px solid var(--amber-border);}
+.tmpl-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.6);border:1px solid var(--amber-border);border-radius:6px;padding:3px 10px;cursor:pointer;font-size:12.5px;color:var(--amber);transition:all .15s;font-family:var(--font);font-weight:500;flex-shrink:0;}
 .tmpl-btn:hover{background:#fff;border-color:var(--amber);}
 .tmpl-btn.active{background:var(--amber);color:#fff;border-color:var(--amber);}
 
-/* LAYOUT */
-.app-body{display:grid;grid-template-columns:405px 1fr;height:calc(100vh - 52px - 40px - 40px - 40px);overflow:hidden;}
-.form-col{overflow-y:auto;border-right:0.5px solid var(--border);background:var(--card);}
+/* ─── LAYOUT ─── */
+.app-body{display:grid;grid-template-columns:390px 1fr;height:calc(100vh - 48px - 38px - 36px - 36px);overflow:hidden;}
+.form-col{overflow-y:auto;border-right:1px solid var(--border);background:var(--bg);}
+.form-col::-webkit-scrollbar{width:4px;}
+.form-col::-webkit-scrollbar-track{background:transparent;}
+.form-col::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 .out-col{overflow-y:auto;background:var(--surface);}
+.out-col::-webkit-scrollbar{width:4px;}
+.out-col::-webkit-scrollbar-track{background:transparent;}
+.out-col::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 
-/* FORM */
-.form-inner{padding:1.3rem 1.5rem 2rem;}
-.sec{margin-bottom:1.1rem;}
-.sec-head{display:flex;align-items:center;gap:8px;margin-bottom:.8rem;}
-.sec-n{font-size:10px;font-weight:700;color:var(--green);background:var(--green-pale);border-radius:20px;padding:2px 9px;letter-spacing:.3px;}
-.sec-t{font-family:var(--display);font-size:15px;font-style:italic;color:var(--ink);}
-.divider{height:0.5px;background:var(--border);margin:1rem 0;}
+/* ─── FORM ─── */
+.form-inner{padding:16px;}
+.sec{margin-bottom:16px;}
+.sec-head{display:flex;align-items:center;gap:7px;margin-bottom:10px;}
+.sec-num{font-size:10px;font-weight:700;color:var(--green);background:var(--green-bg);border:1px solid var(--green-border);border-radius:4px;padding:1px 7px;letter-spacing:.3px;}
+.sec-title-txt{font-size:13.5px;font-weight:700;color:var(--ink);letter-spacing:-.2px;}
+hr.divider{border:none;border-top:1px solid var(--border);margin:14px 0;}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.field{margin-bottom:.7rem;}
-.field label{display:block;font-size:10.5px;color:var(--muted);margin-bottom:3px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
-.field input,.field select,.field textarea{width:100%;font-family:var(--body);font-size:13px;color:var(--ink);background:var(--surface);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;outline:none;transition:border-color .15s,background .15s;}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green);background:#fff;}
-.field textarea{resize:vertical;min-height:56px;line-height:1.6;}
+.field{margin-bottom:8px;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
+.field input,.field select,.field textarea{width:100%;font-family:var(--font);font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 10px;outline:none;transition:all .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px rgba(5,150,105,.08);}
+.field textarea{resize:vertical;min-height:56px;line-height:1.55;}
 .field select{appearance:none;cursor:pointer;}
 .field input[type=date]{color-scheme:light;}
 
 /* AUTOCOMPLETE */
 .ac-wrap{position:relative;}
-.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--card);border:0.5px solid var(--border);border-radius:8px;z-index:30;box-shadow:0 4px 16px rgba(0,0,0,.08);display:none;max-height:140px;overflow-y:auto;}
-.ac-item{padding:7px 10px;font-size:12.5px;cursor:pointer;color:var(--ink);transition:background .1s;}
-.ac-item:hover{background:var(--green-pale);}
+.ac-list{position:absolute;top:calc(100% + 2px);left:0;right:0;background:var(--bg);border:1px solid var(--border);border-radius:7px;z-index:50;box-shadow:0 4px 16px rgba(0,0,0,.1);display:none;max-height:130px;overflow-y:auto;}
+.ac-item{padding:7px 10px;font-size:13px;cursor:pointer;color:var(--ink);transition:background .1s;}
+.ac-item:hover{background:var(--green-bg);}
 
-/* BRAND */
-.brand-box{display:grid;grid-template-columns:62px 1fr;gap:9px;align-items:center;margin-bottom:.75rem;}
-.logo-box{width:62px;height:46px;border-radius:8px;background:var(--surface);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;position:relative;transition:border-color .15s;}
-.logo-box:hover{border-color:var(--green);}
-.logo-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-.logo-box img{max-width:100%;max-height:100%;object-fit:contain;}
-.logo-box-text{font-size:9px;color:var(--hint);text-align:center;line-height:1.4;pointer-events:none;}
-.logo-side strong{display:block;font-size:13px;color:var(--ink);margin-bottom:1px;}
-.logo-side span{font-size:11px;color:var(--muted);}
+/* BRAND BOX */
+.brand-row{display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:center;margin-bottom:8px;}
+.logo-upload{width:58px;height:44px;border-radius:7px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;position:relative;transition:all .15s;}
+.logo-upload:hover{border-color:var(--green);background:var(--green-bg);}
+.logo-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.logo-upload img{max-width:100%;max-height:100%;object-fit:contain;}
+.logo-placeholder{font-size:9.5px;color:var(--hint);text-align:center;line-height:1.4;pointer-events:none;}
+.logo-meta strong{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:1px;}
+.logo-meta span{font-size:11.5px;color:var(--muted);}
 
 /* STYLE TRIGGER */
-.style-trigger{display:flex;align-items:center;gap:8px;background:var(--amber-pale);border:0.5px solid #f5d28a;border-radius:9px;padding:.65rem .9rem;cursor:pointer;transition:border-color .15s;width:100%;font-family:var(--body);}
-.style-trigger:hover{border-color:var(--amber);}
-.st-icon{font-size:15px;flex-shrink:0;}
-.st-body strong{font-size:12px;color:var(--amber);display:block;}
-.st-body span{font-size:10.5px;color:var(--muted);}
-.st-arrow{margin-left:auto;color:var(--amber);font-size:12px;}
+.style-btn{display:flex;align-items:center;gap:8px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:7px;padding:9px 11px;cursor:pointer;width:100%;font-family:var(--font);transition:all .15s;}
+.style-btn:hover{border-color:var(--amber);}
+.style-btn-icon{font-size:14px;flex-shrink:0;}
+.style-btn-text strong{font-size:12.5px;font-weight:600;color:var(--amber);display:block;}
+.style-btn-text span{font-size:11px;color:var(--muted);}
+.style-btn-arrow{margin-left:auto;color:var(--amber);font-size:12px;}
 
-/* SIG PREVIEW */
-.sig-prev{background:var(--surface);border-radius:8px;border:0.5px solid var(--border);padding:.75rem .9rem;margin-top:.55rem;}
-.sig-prev-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--hint);margin-bottom:.45rem;font-weight:700;}
-.sig-prev-body{display:flex;align-items:flex-start;gap:8px;}
-.sig-prev-bar{width:2.5px;min-height:38px;background:var(--green-mid);border-radius:2px;flex-shrink:0;}
-.sig-prev-text{font-size:11px;line-height:1.85;color:var(--ink);flex:1;}
-.sig-prev-text strong{font-size:12px;display:block;}
-.sig-prev-text em{font-style:normal;font-size:10.5px;color:var(--green-deep);}
-.sig-prev-text span{color:var(--muted);}
-.sig-prev-logo{max-height:30px;max-width:55px;object-fit:contain;opacity:.75;}
+/* SIGNATURE PREVIEW */
+.sig-preview{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-top:8px;}
+.sig-preview-lbl{font-size:9.5px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;}
+.sig-preview-body{display:flex;align-items:flex-start;gap:8px;}
+.sig-bar{width:2px;min-height:38px;background:var(--green);border-radius:2px;flex-shrink:0;}
+.sig-text{font-size:11px;line-height:1.8;color:var(--ink);flex:1;}
+.sig-text strong{font-size:12px;display:block;font-weight:700;}
+.sig-text em{font-style:normal;font-size:10.5px;color:var(--green-text);}
+.sig-text span{color:var(--muted);}
+.sig-logo{max-height:28px;max-width:52px;object-fit:contain;opacity:.7;}
 
 /* ITEMS */
-.items-head{display:grid;grid-template-columns:2fr 1fr 1fr 26px;gap:7px;margin-bottom:4px;}
-.items-head span{font-size:10px;color:var(--hint);font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
-.item-row{display:grid;grid-template-columns:2fr 1fr 1fr 26px;gap:7px;align-items:center;margin-bottom:5px;}
-.item-row input{font-family:var(--body);font-size:12.5px;color:var(--ink);background:var(--surface);border:0.5px solid var(--border);border-radius:7px;padding:7px 8px;outline:none;width:100%;transition:border-color .15s;}
-.item-row input:focus{border-color:var(--green);background:#fff;}
-.rm{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border:0.5px solid var(--border);border-radius:5px;background:transparent;color:var(--hint);cursor:pointer;font-size:14px;transition:all .15s;font-family:var(--body);}
-.rm:hover{background:var(--red-pale);color:var(--red);border-color:#fca5a5;}
-.add-item-btn{font-family:var(--body);font-size:12px;color:var(--green);background:transparent;border:0.5px dashed var(--green-mid);border-radius:7px;padding:6px;cursor:pointer;width:100%;transition:background .15s;}
-.add-item-btn:hover{background:var(--green-pale);}
+.items-head{display:grid;grid-template-columns:2fr 1fr 1fr 26px;gap:6px;margin-bottom:4px;}
+.items-head span{font-size:10px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.4px;}
+.item-row{display:grid;grid-template-columns:2fr 1fr 1fr 26px;gap:6px;align-items:center;margin-bottom:5px;}
+.item-row input{font-family:var(--font);font-size:12.5px;color:var(--ink);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 8px;outline:none;width:100%;transition:all .15s;}
+.item-row input:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 3px rgba(5,150,105,.08);}
+.rm-btn{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:5px;background:transparent;color:var(--hint);cursor:pointer;font-size:14px;transition:all .15s;font-family:var(--font);}
+.rm-btn:hover{background:var(--red-bg);color:var(--red);border-color:var(--red-border);}
+.add-item{font-family:var(--font);font-size:12.5px;font-weight:500;color:var(--green);background:transparent;border:1px dashed var(--green-border);border-radius:6px;padding:6px;cursor:pointer;width:100%;transition:background .15s;}
+.add-item:hover{background:var(--green-bg);}
 
-/* SETTINGS ROW */
-.settings-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-
-/* GEN BTN */
-.gen-btn{width:100%;margin-top:.9rem;padding:12px;font-family:var(--display);font-size:17px;font-style:italic;background:var(--ink);color:#fff;border:none;border-radius:10px;cursor:pointer;transition:opacity .15s,transform .12s;display:flex;align-items:center;justify-content:center;gap:7px;}
-.gen-btn:hover{opacity:.83;}
+/* GENERATE BUTTON */
+.gen-btn{width:100%;margin-top:12px;padding:11px;font-family:var(--font);font-size:14px;font-weight:700;background:var(--dark);color:#fff;border:none;border-radius:8px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px;letter-spacing:-.2px;}
+.gen-btn:hover{background:#111;box-shadow:0 4px 12px rgba(0,0,0,.2);}
 .gen-btn:active{transform:scale(.985);}
-.gen-btn:disabled{opacity:.35;cursor:not-allowed;}
-.err-msg{font-size:12px;color:var(--red);background:var(--red-pale);border:0.5px solid #fca5a5;border-radius:8px;padding:8px 10px;margin-top:7px;}
-.save-badge{font-size:10.5px;color:var(--hint);text-align:center;margin-top:5px;height:16px;}
+.gen-btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;}
+.err-box{font-size:12px;color:var(--red);background:var(--red-bg);border:1px solid var(--red-border);border-radius:6px;padding:7px 10px;margin-top:7px;}
+.autosave-note{font-size:11px;color:var(--hint);text-align:center;margin-top:5px;min-height:15px;}
 
-/* OUTPUT */
-.out-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;gap:12px;text-align:center;padding:2rem;}
-.empty-icon{width:50px;height:50px;border-radius:12px;background:var(--card);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;}
-.empty-title{font-family:var(--display);font-size:19px;font-style:italic;}
-.empty-sub{font-size:13px;color:var(--muted);max-width:200px;line-height:1.75;}
-.hint-row{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--hint);}
-.hint-dot{width:5px;height:5px;border-radius:50%;background:var(--green-mid);flex-shrink:0;}
+/* ─── OUTPUT ─── */
+.out-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;gap:10px;text-align:center;padding:2rem;}
+.empty-icon{width:44px;height:44px;border-radius:10px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
+.empty-title{font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-.3px;}
+.empty-sub{font-size:13px;color:var(--muted);max-width:190px;line-height:1.7;}
+.hint-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--hint);}
+.hint-dot{width:4px;height:4px;border-radius:50%;background:var(--green);flex-shrink:0;}
 
-.out-panel{display:none;padding:1.4rem 1.5rem;}
-.out-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:7px;}
-.out-lbl{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:1.3px;font-weight:700;}
-.toolbar-acts{display:flex;gap:6px;flex-wrap:wrap;}
-.act-btn{font-family:var(--body);font-size:12px;color:var(--muted);background:var(--card);border:0.5px solid var(--border);border-radius:7px;padding:5px 12px;cursor:pointer;transition:all .15s;white-space:nowrap;}
-.act-btn:hover{border-color:var(--green);color:var(--green-deep);}
-.act-btn.solid{background:var(--ink);color:#fff;border-color:var(--ink);}
-.act-btn.solid:hover{opacity:.82;}
-.act-btn.wa{background:#25d366;color:#fff;border-color:#25d366;}
-.act-btn.wa:hover{opacity:.82;}
-.act-btn.save-tmpl{background:var(--amber-pale);color:var(--amber);border-color:#f5d28a;}
-.act-btn.save-tmpl:hover{background:var(--amber);color:#fff;}
-.progress{height:1.5px;background:var(--border);margin-bottom:1.1rem;overflow:hidden;border-radius:2px;}
-.progress-fill{height:100%;background:var(--green);width:0%;transition:width .3s;}
+.out-panel{display:none;padding:16px;}
+.out-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+.out-label{font-size:10px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.8px;}
+.toolbar-btns{display:flex;gap:5px;flex-wrap:wrap;}
+.tool-btn{font-family:var(--font);font-size:12px;font-weight:500;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 11px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.tool-btn:hover{border-color:var(--dark);color:var(--ink);}
+.tool-btn.primary{background:var(--dark);color:#fff;border-color:var(--dark);}
+.tool-btn.primary:hover{opacity:.85;}
+.tool-btn.wa{background:#25d366;color:#fff;border-color:#25d366;}
+.tool-btn.wa:hover{opacity:.85;}
+.tool-btn.save{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border);}
+.tool-btn.save:hover{background:var(--amber);color:#fff;}
+.progress-bar{height:1px;background:var(--border);margin-bottom:10px;overflow:hidden;border-radius:2px;}
+.progress-fill{height:100%;background:var(--green);width:0%;transition:width .3s ease;}
 
-/* DOCUMENT */
-.doc-paper{background:#fff;border:0.5px solid var(--border);border-radius:12px;overflow:hidden;}
-.doc-hd{padding:1.4rem 1.8rem 1.1rem;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
-.doc-logo-block{display:flex;align-items:center;gap:10px;}
-.doc-logo-img{max-height:44px;max-width:110px;object-fit:contain;}
-.doc-logo-fb{width:40px;height:40px;border-radius:7px;background:var(--surface);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--hint);text-align:center;line-height:1.3;}
-.doc-co-name{font-family:var(--display);font-size:17px;color:var(--ink);}
-.doc-co-sub{font-size:10.5px;color:var(--muted);margin-top:1px;}
-.doc-meta{font-size:11.5px;color:var(--muted);line-height:1.95;}
-.doc-meta strong{color:var(--ink);font-weight:500;}
-.doc-ref{display:inline-block;font-size:10.5px;background:var(--green-pale);color:var(--green-deep);border-radius:20px;padding:2px 10px;margin-bottom:.4rem;font-family:var(--body);}
-.doc-bd{padding:1.4rem 1.8rem;}
-.doc-sec{margin-bottom:1.1rem;}
-.doc-sec h3{font-size:9px;text-transform:uppercase;letter-spacing:1.8px;color:var(--hint);margin-bottom:.4rem;font-weight:700;}
-.doc-text{font-size:13px;line-height:1.85;color:var(--ink);}
-.doc-subject{font-size:13.5px;font-weight:600;color:var(--ink);}
-.doc-salutation{font-size:13px;color:var(--ink);margin-bottom:.5rem;font-style:italic;}
-.doc-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:.45rem 0;}
-.doc-table th{font-size:9.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700;text-align:left;padding:5px 9px;border-bottom:0.5px solid var(--border);}
-.doc-table td{padding:8px 9px;border-bottom:0.5px solid var(--border);color:var(--ink);}
+/* ─── DOCUMENT ─── */
+.doc-paper{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.doc-header{padding:20px 22px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
+.doc-logo-row{display:flex;align-items:center;gap:10px;}
+.doc-logo-img{max-height:40px;max-width:110px;object-fit:contain;}
+.doc-logo-placeholder{width:36px;height:36px;border-radius:7px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--hint);text-align:center;line-height:1.3;}
+.doc-co-name{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.3px;}
+.doc-co-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.doc-meta-right{text-align:right;font-size:12px;color:var(--muted);line-height:1.9;}
+.doc-meta-right strong{color:var(--ink);font-weight:600;}
+.doc-ref-pill{display:inline-block;font-size:10.5px;background:var(--green-bg);color:var(--green-text);border-radius:4px;padding:2px 8px;margin-bottom:4px;font-weight:600;}
+.doc-body{padding:16px 22px;}
+.doc-section{margin-bottom:14px;}
+.doc-section-title{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--hint);margin-bottom:5px;}
+.doc-text{font-size:13px;line-height:1.8;color:var(--ink);}
+.doc-subject{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-.2px;}
+.doc-salutation{font-size:13px;color:var(--ink);margin-bottom:6px;}
+.doc-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px;}
+.doc-table th{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);text-align:left;padding:6px 9px;border-bottom:1px solid var(--border);}
+.doc-table td{padding:8px 9px;border-bottom:1px solid var(--border);color:var(--ink);}
 .doc-table tr:last-child td{border-bottom:none;}
 .doc-table tr:nth-child(even) td{background:var(--surface);}
-.doc-terms{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:.45rem 0;}
-.term-c{background:var(--surface);border-radius:6px;padding:7px 9px;}
-.term-c-lbl{font-size:9px;color:var(--hint);margin-bottom:2px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
-.term-c-val{font-size:12px;color:var(--ink);font-weight:600;}
-.terms-list{font-size:11.5px;color:var(--muted);line-height:1.9;margin-top:.45rem;}
-.doc-sig{border-top:0.5px solid var(--border);padding:1.1rem 1.8rem;display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;}
+.doc-terms-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px;}
+.term-box{background:var(--surface);border-radius:6px;padding:8px 10px;}
+.term-box-lbl{font-size:9.5px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;}
+.term-box-val{font-size:12px;font-weight:600;color:var(--ink);}
+.terms-bullets{font-size:12px;color:var(--muted);line-height:1.85;margin-top:6px;}
+.doc-sig{border-top:1px solid var(--border);padding:14px 22px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
 .doc-sig-left{display:flex;align-items:flex-start;gap:9px;}
-.doc-sig-bar{width:2.5px;min-height:48px;background:var(--green);border-radius:2px;flex-shrink:0;}
-.doc-sig-info{font-size:11.5px;color:var(--muted);line-height:1.9;}
-.doc-sig-info strong{font-size:13px;display:block;color:var(--ink);font-weight:600;}
-.doc-sig-info em{font-style:normal;font-size:11px;color:var(--green-deep);}
-.doc-sig-logo{max-height:32px;max-width:65px;object-fit:contain;opacity:.7;}
-.doc-footer-qr{border-top:0.5px solid var(--border);padding:.75rem 1.8rem;display:flex;align-items:center;justify-content:space-between;}
+.doc-sig-accent{width:2.5px;min-height:46px;background:var(--green);border-radius:2px;flex-shrink:0;}
+.doc-sig-info{font-size:12px;color:var(--muted);line-height:1.85;}
+.doc-sig-info strong{font-size:13.5px;display:block;color:var(--ink);font-weight:700;}
+.doc-sig-info em{font-style:normal;font-size:11.5px;color:var(--green-text);font-weight:500;}
+.doc-sig-logo{max-height:30px;max-width:65px;object-fit:contain;opacity:.65;}
+.doc-footer-strip{border-top:1px solid var(--border);padding:8px 22px;display:flex;align-items:center;justify-content:space-between;background:var(--surface);}
 .doc-footer-url{font-size:10px;color:var(--hint);}
-#qr-canvas{width:40px;height:40px;}
-.rtl{direction:rtl;text-align:right;}
-.rtl .doc-hd,.rtl .doc-logo-block{flex-direction:row-reverse;}
-.rtl .doc-meta{text-align:left;}
-.rtl .doc-table th,.rtl .doc-table td{text-align:right;}
-.rtl .doc-sig,.rtl .doc-sig-left{flex-direction:row-reverse;}
+.doc-qr{width:36px;height:36px;}
+.rtl-doc{direction:rtl;text-align:right;}
+.rtl-doc .doc-header,.rtl-doc .doc-logo-row{flex-direction:row-reverse;}
+.rtl-doc .doc-meta-right{text-align:left;}
+.rtl-doc .doc-table th,.rtl-doc .doc-table td{text-align:right;}
+.rtl-doc .doc-sig,.rtl-doc .doc-sig-left{flex-direction:row-reverse;}
 
-/* MODALS */
-.overlay{position:fixed;inset:0;background:rgba(10,10,8,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(3px);}
+/* ─── MODALS ─── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
 .overlay.open{display:flex;}
-.modal{background:var(--card);border-radius:16px;width:100%;overflow:hidden;box-shadow:0 28px 90px rgba(0,0,0,.22);}
-.modal-hd{padding:1rem 1.3rem;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.modal-title{font-family:var(--display);font-size:17px;font-style:italic;}
-.modal-x{width:28px;height:28px;border-radius:6px;border:0.5px solid var(--border);background:transparent;cursor:pointer;font-size:16px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--body);}
-.modal-x:hover{background:var(--surface);color:var(--ink);}
-.modal-bd{padding:1.2rem 1.3rem;overflow-y:auto;}
-.modal-ft{padding:.85rem 1.3rem;border-top:0.5px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
-.mbtn{font-family:var(--body);font-size:13px;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;transition:all .15s;}
-.mbtn-cancel{background:transparent;border:0.5px solid var(--border);color:var(--muted);}
-.mbtn-cancel:hover{border-color:var(--ink);color:var(--ink);}
-.mbtn-save{background:var(--ink);color:#fff;border:none;}
-.mbtn-save:hover{opacity:.84;}
-.mbtn-del{background:var(--red-pale);color:var(--red);border:0.5px solid #fca5a5;}
-.mbtn-del:hover{background:var(--red);color:#fff;}
+.modal{background:var(--bg);border-radius:12px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.2);overflow:hidden;border:1px solid var(--border);}
+.modal-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.3px;}
+.modal-close{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:16px;color:var(--muted);display:flex;align-items:center;justify-content:center;font-family:var(--font);}
+.modal-close:hover{background:var(--surface);color:var(--ink);}
+.modal-body{padding:16px;overflow-y:auto;}
+.modal-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:7px;justify-content:flex-end;}
+.mbtn{font-family:var(--font);font-size:13px;font-weight:600;padding:7px 16px;border-radius:7px;cursor:pointer;transition:all .15s;}
+.mbtn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.mbtn-ghost:hover{border-color:var(--ink);color:var(--ink);}
+.mbtn-dark{background:var(--dark);color:#fff;border:none;}
+.mbtn-dark:hover{opacity:.84;}
+.mbtn-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+.mbtn-red:hover{background:var(--red);color:#fff;}
 
-/* STYLE MODAL */
-.upload-zone{border:0.5px dashed var(--border-mid);border-radius:10px;padding:1.2rem;cursor:pointer;text-align:center;background:var(--surface);position:relative;margin-bottom:1rem;transition:all .2s;}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--green);background:var(--green-pale);}
-.upload-zone.loaded{border-color:var(--green);border-style:solid;background:var(--green-pale);}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-.uz-icon{font-size:22px;margin-bottom:.35rem;}
-.uz-title{font-size:13px;font-weight:600;color:var(--ink);}
-.uz-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.uz-file{font-size:11.5px;color:var(--green-deep);margin-top:3px;font-weight:600;}
-.signal-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:.65rem;}
-.signal-tag{font-size:11px;background:var(--surface);border:0.5px solid var(--border);border-radius:20px;padding:2px 9px;color:var(--muted);}
-.signal-tag.on{background:var(--green-pale);border-color:var(--green-mid);color:var(--green-deep);}
+/* STYLE MODAL UPLOAD */
+.upload-drop{border:1px dashed var(--border2);border-radius:8px;padding:20px;cursor:pointer;text-align:center;background:var(--surface);position:relative;margin-bottom:12px;transition:all .2s;}
+.upload-drop:hover,.upload-drop.drag{border-color:var(--green);background:var(--green-bg);}
+.upload-drop.loaded{border-color:var(--green);border-style:solid;background:var(--green-bg);}
+.upload-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.ud-icon{font-size:20px;margin-bottom:4px;}
+.ud-title{font-size:13px;font-weight:600;color:var(--ink);}
+.ud-sub{font-size:11.5px;color:var(--muted);margin-top:2px;}
+.ud-file{font-size:12px;color:var(--green-text);margin-top:3px;font-weight:600;}
+.signals{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.signal{font-size:11px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:4px;padding:2px 8px;color:var(--green-text);font-weight:500;}
 
-/* TOUR */
+/* ─── TOOLTIP TOUR (scrolls to element first) ─── */
 .tour-overlay{position:fixed;inset:0;z-index:300;pointer-events:none;}
-.tour-spot{position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgba(10,10,8,.62);z-index:301;pointer-events:none;transition:all .3s;}
-.tour-tip{position:fixed;z-index:302;background:var(--card);border-radius:12px;padding:1rem 1.15rem;width:270px;box-shadow:0 16px 48px rgba(0,0,0,.2);pointer-events:auto;}
-.tour-tip-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:.3rem;}
-.tour-tip-body{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:.85rem;}
-.tour-tip-footer{display:flex;align-items:center;justify-content:space-between;}
+.tour-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:301;pointer-events:none;}
+.tour-hole{position:fixed;z-index:302;border-radius:8px;box-shadow:0 0 0 4px rgba(5,150,105,.4);pointer-events:none;transition:all .3s ease;}
+.tour-card{position:fixed;z-index:303;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;width:260px;box-shadow:0 16px 48px rgba(0,0,0,.18);pointer-events:auto;}
+.tour-card-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.tour-card-body{font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+.tour-card-footer{display:flex;align-items:center;justify-content:space-between;}
 .tour-prog{font-size:11px;color:var(--hint);}
-.tour-btns{display:flex;gap:6px;}
-.tbtn{font-size:12px;padding:6px 13px;border-radius:7px;cursor:pointer;font-family:var(--body);font-weight:600;transition:all .15s;}
-.tbtn-skip{background:transparent;border:0.5px solid var(--border);color:var(--muted);}
-.tbtn-next{background:var(--ink);color:#fff;border:none;}
-.tbtn-next:hover{opacity:.84;}
-.beacon{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--green);z-index:299;animation:pulse 1.5s infinite;pointer-events:none;}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(26,143,103,.5);}70%{box-shadow:0 0 0 10px rgba(26,143,103,0);}100%{box-shadow:0 0 0 0 rgba(26,143,103,0);}}
+.tour-actions{display:flex;gap:6px;}
+.t-btn{font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:var(--font);transition:all .15s;}
+.t-skip{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.t-skip:hover{color:var(--ink);}
+.t-next{background:var(--dark);color:#fff;border:none;}
+.t-next:hover{opacity:.84;}
 
-/* WALKTHROUGH */
-.wt-panel{position:fixed;bottom:1.25rem;right:1.25rem;width:300px;background:var(--card);border:0.5px solid var(--border);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.1);z-index:250;overflow:hidden;animation:slideUp .4s ease;}
-@keyframes slideUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-.wt-hd{padding:.7rem .9rem;background:var(--ink);display:flex;align-items:center;justify-content:space-between;}
-.wt-hd-title{font-size:12.5px;font-weight:600;color:#fff;}
-.wt-x{background:transparent;border:none;color:rgba(255,255,255,.45);cursor:pointer;font-size:17px;line-height:1;font-family:var(--body);}
-.wt-x:hover{color:#fff;}
-.wt-body{padding:.85rem;}
-.wt-steps{display:flex;flex-direction:column;gap:.5rem;}
-.wt-step{display:flex;align-items:center;gap:9px;padding:.5rem .65rem;border-radius:7px;background:var(--surface);}
-.wt-step.active{background:var(--green-pale);border:0.5px solid var(--green-mid);}
-.wt-step.done{opacity:.45;}
-.wt-sn{width:20px;height:20px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:var(--muted);flex-shrink:0;}
-.wt-step.active .wt-sn{background:var(--green);color:#fff;}
-.wt-step.done .wt-sn{background:var(--green-pale);color:var(--green-deep);}
-.wt-st{font-size:11.5px;color:var(--ink);}
-.wt-step.active .wt-st{font-weight:600;}
-.wt-ft{padding:.65rem .85rem;border-top:0.5px solid var(--border);display:flex;gap:7px;}
-.wt-btn{flex:1;font-family:var(--body);font-size:12px;padding:6px;border-radius:7px;cursor:pointer;font-weight:600;transition:all .15s;}
-.wt-prev{background:transparent;border:0.5px solid var(--border);color:var(--muted);}
-.wt-next{background:var(--ink);color:#fff;border:none;}
-.wt-next:hover{opacity:.84;}
+/* ─── WALKTHROUGH PANEL ─── */
+.wt-panel{position:fixed;bottom:16px;right:16px;width:280px;background:var(--bg);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.12);z-index:250;overflow:hidden;animation:slideIn .3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.wt-header{padding:9px 12px;background:var(--dark);display:flex;align-items:center;justify-content:space-between;}
+.wt-header-title{font-size:12.5px;font-weight:600;color:#fff;}
+.wt-close{background:transparent;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:17px;line-height:1;font-family:var(--font);}
+.wt-close:hover{color:#fff;}
+.wt-body{padding:10px 12px;}
+.wt-steps{display:flex;flex-direction:column;gap:5px;}
+.wt-step{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;background:var(--surface);}
+.wt-step.active{background:var(--green-bg);border:1px solid var(--green-border);}
+.wt-step.done{opacity:.4;}
+.wt-step-num{width:18px;height:18px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--muted);flex-shrink:0;}
+.wt-step.active .wt-step-num{background:var(--green);color:#fff;}
+.wt-step.done .wt-step-num{background:var(--green-bg);color:var(--green-text);}
+.wt-step-txt{font-size:12px;color:var(--ink);}
+.wt-step.active .wt-step-txt{font-weight:600;}
+.wt-footer{padding:8px 12px;border-top:1px solid var(--border);display:flex;gap:6px;}
+.wt-btn{flex:1;font-family:var(--font);font-size:12px;font-weight:600;padding:6px;border-radius:6px;cursor:pointer;transition:all .15s;}
+.wt-prev{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.wt-next-btn{background:var(--dark);color:#fff;border:none;}
+.wt-next-btn:hover{opacity:.84;}
 
 @media print{
-  nav,.lang-bar,.company-bar,.tmpl-bar,.tour-overlay,.beacon,.wt-panel,.overlay,.style-trigger,.out-toolbar,.progress,.form-col,#empty-state,#qr-canvas-wrap-hidden{display:none!important;}
+  nav,.lang-bar,.company-bar,.tmpl-bar,.tour-overlay,.tour-backdrop,.tour-hole,.tour-card,.wt-panel,.overlay,.style-btn,.out-toolbar,.progress-bar,.form-col,#empty-state{display:none!important;}
   html,body{overflow:auto;height:auto;}
   .app-body{display:block;height:auto;}
   .out-col{overflow:visible;background:#fff;}
-  .out-panel{display:block!important;padding:.5rem;}
-  .doc-paper{border:none;border-radius:0;}
-  .doc-footer-qr{display:flex!important;}
+  .out-panel{display:block!important;padding:8px;}
+  .doc-paper{border:none;border-radius:0;box-shadow:none;}
 }
 </style>
 </head>
@@ -288,41 +285,38 @@ nav{height:52px;display:flex;align-items:center;justify-content:space-between;pa
 
 <nav>
   <a class="nav-brand" href="/">
-    <div class="nav-mark"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="6" rx="1" fill="#1a8f67"/><rect x="9" y="2" width="5" height="3" rx="1" fill="white" opacity=".6"/><rect x="2" y="10" width="12" height="1.5" rx=".75" fill="white" opacity=".4"/><rect x="2" y="12.5" width="8" height="1.5" rx=".75" fill="white" opacity=".25"/></svg></div>
-    <span class="nav-name">RFQ<em>forge</em></span>
+    <div class="nav-logo"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="6" rx="1" fill="#059669"/><rect x="9" y="2" width="5" height="3" rx="1" fill="white" opacity=".6"/><rect x="2" y="10" width="12" height="1.5" rx=".75" fill="white" opacity=".4"/><rect x="2" y="12.5" width="8" height="1.5" rx=".75" fill="white" opacity=".25"/></svg></div>
+    <span class="nav-name">RFQ<span>forge</span></span>
   </a>
-  <div class="nav-right">
-    <button class="nav-btn blue" onclick="startTour()">? Tour</button>
+  <div class="nav-right"><span id="usage-badge" style="font-size:11.5px;color:var(--hint);padding:4px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;"></span>
+    <button class="nav-btn tour-btn" onclick="startTour()">? Tour</button>
     <a class="nav-btn" href="/">← Home</a>
   </div>
 </nav>
 
-<!-- LANGUAGE BAR — always visible at top -->
-<div class="lang-bar" id="lang-bar">
-  <span class="lang-bar-label">Language</span>
-  <button class="lang-btn active" data-lang="en" onclick="setLang('en')"><span class="lang-flag">🇬🇧</span>English</button>
-  <button class="lang-btn" data-lang="ar" onclick="setLang('ar')"><span class="lang-flag">🇸🇦</span>العربية</button>
-  <button class="lang-btn" data-lang="zh" onclick="setLang('zh')"><span class="lang-flag">🇨🇳</span>中文</button>
-  <button class="lang-btn" data-lang="ja" onclick="setLang('ja')"><span class="lang-flag">🇯🇵</span>日本語</button>
-  <button class="lang-btn" data-lang="ko" onclick="setLang('ko')"><span class="lang-flag">🇰🇷</span>한국어</button>
-  <button class="lang-btn" data-lang="fr" onclick="setLang('fr')"><span class="lang-flag">🇫🇷</span>Français</button>
-  <button class="lang-btn" data-lang="de" onclick="setLang('de')"><span class="lang-flag">🇩🇪</span>Deutsch</button>
-  <button class="lang-btn" data-lang="es" onclick="setLang('es')"><span class="lang-flag">🇪🇸</span>Español</button>
-  <button class="lang-btn" data-lang="tr" onclick="setLang('tr')"><span class="lang-flag">🇹🇷</span>Türkçe</button>
-  <button class="lang-btn" data-lang="ur" onclick="setLang('ur')"><span class="lang-flag">🇵🇰</span>اردو</button>
-  <button class="lang-btn" data-lang="id" onclick="setLang('id')"><span class="lang-flag">🇮🇩</span>Bahasa</button>
+<div class="top-bar lang-bar" id="lang-bar">
+  <span class="bar-label">Language</span>
+  <button class="lang-btn active" data-lang="en" onclick="setLang('en')">🇬🇧 English</button>
+  <button class="lang-btn" data-lang="ar" onclick="setLang('ar')">🇸🇦 العربية</button>
+  <button class="lang-btn" data-lang="zh" onclick="setLang('zh')">🇨🇳 中文</button>
+  <button class="lang-btn" data-lang="ja" onclick="setLang('ja')">🇯🇵 日本語</button>
+  <button class="lang-btn" data-lang="ko" onclick="setLang('ko')">🇰🇷 한국어</button>
+  <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">🇫🇷 Français</button>
+  <button class="lang-btn" data-lang="de" onclick="setLang('de')">🇩🇪 Deutsch</button>
+  <button class="lang-btn" data-lang="es" onclick="setLang('es')">🇪🇸 Español</button>
+  <button class="lang-btn" data-lang="tr" onclick="setLang('tr')">🇹🇷 Türkçe</button>
+  <button class="lang-btn" data-lang="ur" onclick="setLang('ur')">🇵🇰 اردو</button>
+  <button class="lang-btn" data-lang="id" onclick="setLang('id')">🇮🇩 Bahasa</button>
 </div>
 
-<!-- COMPANY BAR -->
-<div class="company-bar" id="company-bar">
-  <span class="cb-label">Company</span>
-  <div id="company-chips" style="display:flex;gap:6px;"></div>
-  <button class="add-co-btn" onclick="openAddCompany()">+ Add company</button>
+<div class="top-bar company-bar" id="company-bar">
+  <span class="bar-label">Company</span>
+  <div id="co-chips" style="display:flex;gap:5px;"></div>
+  <button class="add-co" onclick="openAddCo()">+ Add company</button>
 </div>
 
-<!-- TEMPLATE BAR -->
-<div class="tmpl-bar" id="tmpl-bar">
-  <span class="tmpl-bar-label">Template</span>
+<div class="top-bar tmpl-bar" id="tmpl-bar">
+  <span class="bar-label" style="color:var(--amber);">Template</span>
   <button class="tmpl-btn active" data-tmpl="trading" onclick="applyTemplate('trading')">🛒 General Trading</button>
   <button class="tmpl-btn" data-tmpl="construction" onclick="applyTemplate('construction')">🏗️ Construction</button>
   <button class="tmpl-btn" data-tmpl="medical" onclick="applyTemplate('medical')">🏥 Medical</button>
@@ -331,40 +325,35 @@ nav{height:52px;display:flex;align-items:center;justify-content:space-between;pa
 </div>
 
 <div class="app-body">
-  <div class="form-col">
+  <div class="form-col" id="form-col">
     <div class="form-inner">
 
-      <!-- 00 BRAND -->
       <div class="sec" id="sec-brand">
-        <div class="sec-head"><span class="sec-n">00</span><span class="sec-t">Brand & style</span></div>
-        <div class="brand-box">
-          <div class="logo-box" id="logo-box">
+        <div class="sec-head"><span class="sec-num">00</span><span class="sec-title-txt">Brand & style</span></div>
+        <div class="brand-row">
+          <div class="logo-upload" id="logo-upload">
             <input type="file" accept="image/*" onchange="onLogoSelect(event)"/>
-            <div id="logo-inner"><div class="logo-box-text">Upload<br/>logo</div></div>
+            <div id="logo-inner"><div class="logo-placeholder">Upload<br/>logo</div></div>
           </div>
-          <div class="logo-side">
-            <strong id="logo-status">No logo yet</strong>
-            <span>PNG, JPG or SVG · Click to upload</span>
-          </div>
+          <div class="logo-meta"><strong id="logo-status">No logo yet</strong><span>PNG, JPG or SVG · click to upload</span></div>
         </div>
-        <button class="style-trigger" onclick="openStyleModal()">
-          <span class="st-icon">🧠</span>
-          <div class="st-body"><strong>Style cloning</strong><span id="style-status">Upload a past RFQ to clone your writing style</span></div>
-          <span class="st-arrow">→</span>
+        <button class="style-btn" onclick="openStyleModal()">
+          <span class="style-btn-icon">🧠</span>
+          <div class="style-btn-text"><strong>Style cloning</strong><span id="style-status">Upload a past RFQ to clone your writing style</span></div>
+          <span class="style-btn-arrow">→</span>
         </button>
       </div>
 
-      <div class="divider"></div>
+      <hr class="divider"/>
 
-      <!-- 01 WHO -->
       <div class="sec" id="sec-who">
-        <div class="sec-head"><span class="sec-n">01</span><span class="sec-t">Who's involved?</span></div>
+        <div class="sec-head"><span class="sec-num">01</span><span class="sec-title-txt">Who's involved?</span></div>
         <div class="g2">
           <div class="field"><label>Your company</label><input id="f-company" type="text" placeholder="Acme Corp" oninput="updateSig();autoSave()"/></div>
           <div class="field"><label>Supplier / vendor</label>
             <div class="ac-wrap">
               <input id="f-supplier" type="text" placeholder="Al-Rashid Supplies" oninput="acSupplier(this.value);autoSave()" autocomplete="off"/>
-              <div class="ac-list" id="ac-supplier"></div>
+              <div class="ac-list" id="ac-list"></div>
             </div>
           </div>
         </div>
@@ -378,11 +367,11 @@ nav{height:52px;display:flex;align-items:center;justify-content:space-between;pa
           <div class="field"><label>Phone</label><input id="f-phone" type="tel" oninput="updateSig();autoSave()"/></div>
         </div>
         <div class="field"><label>Website (optional)</label><input id="f-website" type="text" oninput="updateSig();autoSave()"/></div>
-        <div class="sig-prev">
-          <div class="sig-prev-lbl">Signature preview</div>
-          <div class="sig-prev-body">
-            <div class="sig-prev-bar"></div>
-            <div class="sig-prev-text">
+        <div class="sig-preview">
+          <div class="sig-preview-lbl">Signature preview</div>
+          <div class="sig-preview-body">
+            <div class="sig-bar"></div>
+            <div class="sig-text">
               <strong id="sp-name">Your Name</strong>
               <em id="sp-desig" style="display:none"></em>
               <span id="sp-co" style="display:none"></span>
@@ -390,16 +379,15 @@ nav{height:52px;display:flex;align-items:center;justify-content:space-between;pa
               <span id="sp-phone" style="display:none"></span>
               <span id="sp-web" style="display:none"></span>
             </div>
-            <img id="sp-logo" class="sig-prev-logo" style="display:none" src="" alt=""/>
+            <img id="sp-logo" class="sig-logo" style="display:none" src="" alt=""/>
           </div>
         </div>
       </div>
 
-      <div class="divider"></div>
+      <hr class="divider"/>
 
-      <!-- 02 PROJECT -->
       <div class="sec" id="sec-what">
-        <div class="sec-head"><span class="sec-n">02</span><span class="sec-t">Project details</span></div>
+        <div class="sec-head"><span class="sec-num">02</span><span class="sec-title-txt">Project details</span></div>
         <div class="field"><label>Project or purpose</label><input id="f-project" type="text" placeholder="Annual equipment restock — Q2 2026" oninput="autoSave()"/></div>
         <div class="g2">
           <div class="field"><label>Start date</label><input id="f-startdate" type="date" lang="en" oninput="autoSave()"/></div>
@@ -408,32 +396,28 @@ nav{height:52px;display:flex;align-items:center;justify-content:space-between;pa
         <div class="field"><label>Delivery location</label><input id="f-delivery" type="text" placeholder="e.g. Dammam, Saudi Arabia" oninput="autoSave()"/></div>
       </div>
 
-      <div class="divider"></div>
+      <hr class="divider"/>
 
-      <!-- 03 ITEMS -->
       <div class="sec" id="sec-items">
-        <div class="sec-head"><span class="sec-n">03</span><span class="sec-t">Items requested</span></div>
+        <div class="sec-head"><span class="sec-num">03</span><span class="sec-title-txt">Items requested</span></div>
         <div class="items-head"><span>Description</span><span>Qty</span><span>Unit</span><span></span></div>
         <div id="items-list"></div>
-        <button class="add-item-btn" onclick="addItem()">+ Add another item</button>
+        <button class="add-item" onclick="addItem()">+ Add another item</button>
       </div>
 
-      <div class="divider"></div>
+      <hr class="divider"/>
 
-      <!-- 04 SETTINGS -->
       <div class="sec" id="sec-settings">
-        <div class="sec-head"><span class="sec-n">04</span><span class="sec-t">Document settings</span></div>
-        <div class="settings-row">
-          <div class="field">
-            <label>Tone</label>
+        <div class="sec-head"><span class="sec-num">04</span><span class="sec-title-txt">Settings</span></div>
+        <div class="g2">
+          <div class="field"><label>Tone</label>
             <select id="f-tone" onchange="autoSave()">
               <option value="formal">Formal & professional</option>
               <option value="friendly">Friendly & collaborative</option>
               <option value="urgent">Urgent & direct</option>
             </select>
           </div>
-          <div class="field">
-            <label>Payment terms</label>
+          <div class="field"><label>Payment terms</label>
             <select id="f-payment" onchange="autoSave()">
               <option value="net30">Net 30 days</option>
               <option value="net60">Net 60 days</option>
@@ -442,112 +426,103 @@ nav{height:52px;display:flex;align-items:center;justify-content:space-between;pa
             </select>
           </div>
         </div>
-        <div class="field"><label>Special requirements (optional)</label><textarea id="f-notes" oninput="autoSave()" placeholder="ISO certifications, VAT registration, warranty terms…"></textarea></div>
+        <div class="field"><label>Special requirements (optional)</label><textarea id="f-notes" oninput="autoSave()" placeholder="ISO certifications, warranty terms, VAT registration…"></textarea></div>
       </div>
 
       <button class="gen-btn" id="gen-btn" onclick="generate()">
-        <span id="btn-text">Generate document</span>
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="btn-txt">Generate document</span>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
-      <div id="err"></div>
-      <div class="save-badge" id="save-badge"></div>
-      <div style="height:1.5rem"></div>
+      <div id="err-box"></div>
+      <div class="autosave-note" id="autosave-note"></div>
+      <div style="height:20px"></div>
     </div>
   </div>
 
-  <!-- OUTPUT -->
   <div class="out-col">
     <div class="out-empty" id="empty-state">
-      <div class="empty-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9a9a93" stroke-width="1.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <div class="empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
       <div class="empty-title">Your document<br/>appears here</div>
       <div class="empty-sub">Pick a template, fill the form, click generate.</div>
-      <div style="display:flex;flex-direction:column;gap:7px;margin-top:.2rem;">
-        <div class="hint-row"><div class="hint-dot"></div><span>Logo in header & signature</span></div>
-        <div class="hint-row"><div class="hint-dot"></div><span>Personal "Dear [Name]," opening</span></div>
-        <div class="hint-row"><div class="hint-dot"></div><span>QR code on every PDF</span></div>
-        <div class="hint-row"><div class="hint-dot"></div><span>WhatsApp, PDF, email export</span></div>
-        <div class="hint-row"><div class="hint-dot"></div><span>11 languages — all free</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+        <div class="hint-item"><div class="hint-dot"></div><span>Logo in header & signature</span></div>
+        <div class="hint-item"><div class="hint-dot"></div><span>Personal "Dear [Name]," opening</span></div>
+        <div class="hint-item"><div class="hint-dot"></div><span>QR code on every PDF</span></div>
+        <div class="hint-item"><div class="hint-dot"></div><span>WhatsApp, PDF & email export</span></div>
+        <div class="hint-item"><div class="hint-dot"></div><span>11 languages — all free</span></div>
       </div>
     </div>
     <div class="out-panel" id="out-panel">
       <div class="out-toolbar">
-        <span class="out-lbl">Generated document</span>
-        <div class="toolbar-acts">
-          <button class="act-btn" onclick="copyDoc()">Copy</button>
-          <button class="act-btn" onclick="copyEmail()">Copy as email</button>
-          <button class="act-btn wa" onclick="sendWhatsApp()">WhatsApp</button>
-          <button class="act-btn save-tmpl" onclick="saveTemplate()">Save template</button>
-          <button class="act-btn solid" onclick="window.print()">Save PDF</button>
+        <span class="out-label">Generated document</span>
+        <div class="toolbar-btns">
+          <button class="tool-btn" onclick="copyText()">Copy</button>
+          <button class="tool-btn" onclick="copyEmail()">Email</button>
+          <button class="tool-btn wa" onclick="sendWA()">WhatsApp</button>
+          <button class="tool-btn save" onclick="saveTmpl()">Save template</button>
+          <button class="tool-btn primary" onclick="window.print()">Save PDF</button>
         </div>
       </div>
-      <div class="progress"><div class="progress-fill" id="prog"></div></div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
       <div class="doc-paper" id="doc-paper"></div>
     </div>
   </div>
 </div>
 
 <!-- STYLE MODAL -->
-<div class="overlay" id="style-overlay" onclick="closeStyleModal(event)">
-  <div class="modal" style="max-width:600px;" onclick="event.stopPropagation()">
-    <div class="modal-hd"><div class="modal-title">Style cloning</div><button class="modal-x" onclick="closeStyleModal()">×</button></div>
-    <div class="modal-bd" style="max-height:55vh;">
-      <p style="font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:1rem;">Upload a previous RFQ you've written. The AI reads your vocabulary, tone, and structure — then replicates it precisely. This information never appears in the generated document.</p>
-      <div class="upload-zone" id="style-zone" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onStyleDrop(event)">
+<div class="overlay" id="style-overlay" onclick="closeStyle(event)">
+  <div class="modal" style="max-width:580px;" onclick="event.stopPropagation()">
+    <div class="modal-header"><div class="modal-title">Style cloning</div><button class="modal-close" onclick="closeStyle()">×</button></div>
+    <div class="modal-body" style="max-height:52vh;">
+      <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px;">Upload a previous RFQ you've written. The AI reads your vocabulary, tone, and structure — then replicates it on every document. This never appears in the output.</p>
+      <div class="upload-drop" id="style-drop" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onStyleDrop(event)">
         <input type="file" accept=".pdf,.txt,.doc,.docx" onchange="onStyleSelect(event)"/>
-        <div class="uz-icon">📄</div>
-        <div class="uz-title" id="style-uz-title">Drop your RFQ here or click to browse</div>
-        <div class="uz-sub">PDF, Word, or plain text</div>
-        <div class="uz-file" id="style-uz-file"></div>
+        <div class="ud-icon">📄</div>
+        <div class="ud-title" id="ud-title">Drop your RFQ here or click to browse</div>
+        <div class="ud-sub">PDF, Word, or plain text</div>
+        <div class="ud-file" id="ud-file"></div>
       </div>
-      <div id="signals-wrap" style="display:none;margin-bottom:1rem;">
-        <div style="font-size:10.5px;color:var(--muted);margin-bottom:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;">Detected style signals</div>
-        <div class="signal-row" id="signal-tags"></div>
+      <div id="signals-wrap" style="display:none;margin-bottom:12px;">
+        <div style="font-size:10px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Detected style signals</div>
+        <div class="signals" id="signals"></div>
       </div>
-      <div>
-        <label style="font-size:10.5px;color:var(--muted);display:block;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;">Additional instructions</label>
-        <textarea id="style-instructions" style="width:100%;font-family:var(--body);font-size:13px;color:var(--ink);background:var(--surface);border:0.5px solid var(--border);border-radius:8px;padding:9px 11px;outline:none;resize:vertical;min-height:68px;line-height:1.6;" placeholder="e.g. Always number items. Start with Dear Sir/Madam. Include delivery inspection clause."></textarea>
-      </div>
+      <div class="field"><label>Additional instructions (optional)</label><textarea id="style-instr" placeholder="e.g. Always number items. Start with Dear Sir/Madam. Include delivery inspection clause."></textarea></div>
     </div>
-    <div class="modal-ft"><button class="mbtn mbtn-cancel" onclick="closeStyleModal()">Cancel</button><button class="mbtn mbtn-save" onclick="saveStyle()">Apply style</button></div>
+    <div class="modal-footer"><button class="mbtn mbtn-ghost" onclick="closeStyle()">Cancel</button><button class="mbtn mbtn-dark" onclick="applyStyle()">Apply style</button></div>
   </div>
 </div>
 
 <!-- COMPANY MODAL -->
-<div class="overlay" id="company-overlay" onclick="closeCompanyModal(event)">
-  <div class="modal" style="max-width:440px;" onclick="event.stopPropagation()">
-    <div class="modal-hd"><div class="modal-title" id="co-modal-title">Add company</div><button class="modal-x" onclick="closeCompanyModal()">×</button></div>
-    <div class="modal-bd">
+<div class="overlay" id="co-overlay" onclick="closeCo(event)">
+  <div class="modal" style="max-width:420px;" onclick="event.stopPropagation()">
+    <div class="modal-header"><div class="modal-title" id="co-modal-title">Add company</div><button class="modal-close" onclick="closeCo()">×</button></div>
+    <div class="modal-body">
       <input type="hidden" id="co-edit-id"/>
       <div class="field"><label>Company name</label><input id="co-name" type="text" placeholder="Acme Corp"/></div>
-      <div class="g2">
-        <div class="field"><label>Contact name</label><input id="co-contact" type="text"/></div>
-        <div class="field"><label>Designation</label><input id="co-designation" type="text"/></div>
-      </div>
-      <div class="g2">
-        <div class="field"><label>Email</label><input id="co-email" type="email"/></div>
-        <div class="field"><label>Phone</label><input id="co-phone" type="tel"/></div>
-      </div>
-      <div class="field"><label>Website</label><input id="co-website" type="text"/></div>
+      <div class="g2"><div class="field"><label>Contact name</label><input id="co-contact" type="text"/></div><div class="field"><label>Designation</label><input id="co-desig" type="text"/></div></div>
+      <div class="g2"><div class="field"><label>Email</label><input id="co-email" type="email"/></div><div class="field"><label>Phone</label><input id="co-phone" type="tel"/></div></div>
+      <div class="field"><label>Website</label><input id="co-web" type="text"/></div>
     </div>
-    <div class="modal-ft">
-      <button class="mbtn mbtn-del" id="co-del-btn" onclick="deleteCompany()" style="display:none;">Delete</button>
-      <button class="mbtn mbtn-cancel" onclick="closeCompanyModal()">Cancel</button>
-      <button class="mbtn mbtn-save" onclick="saveCompany()">Save company</button>
+    <div class="modal-footer">
+      <button class="mbtn mbtn-red" id="co-del" onclick="deleteCo()" style="display:none;">Delete</button>
+      <button class="mbtn mbtn-ghost" onclick="closeCo()">Cancel</button>
+      <button class="mbtn mbtn-dark" onclick="saveCo()">Save company</button>
     </div>
   </div>
 </div>
 
 <!-- TOUR -->
-<div class="tour-overlay" id="tour-overlay" style="display:none;">
-  <div class="tour-spot" id="tour-spot"></div>
-  <div class="tour-tip" id="tour-tip">
-    <div class="tour-tip-title" id="tt-title"></div>
-    <div class="tour-tip-body" id="tt-body"></div>
-    <div class="tour-tip-footer">
-      <span class="tour-prog" id="tt-prog"></span>
-      <div class="tour-btns">
-        <button class="tbtn tbtn-skip" onclick="endTour()">Skip</button>
-        <button class="tbtn tbtn-next" id="tt-next" onclick="nextTour()">Next →</button>
+<div id="tour-overlay" style="display:none;">
+  <div class="tour-backdrop"></div>
+  <div class="tour-hole" id="tour-hole"></div>
+  <div class="tour-card" id="tour-card">
+    <div class="tour-card-title" id="tc-title"></div>
+    <div class="tour-card-body" id="tc-body"></div>
+    <div class="tour-card-footer">
+      <span class="tour-prog" id="tc-prog"></span>
+      <div class="tour-actions">
+        <button class="t-btn t-skip" onclick="endTour()">Skip</button>
+        <button class="t-btn t-next" id="tc-next" onclick="nextTour()">Next →</button>
       </div>
     </div>
   </div>
@@ -555,389 +530,268 @@ nav{height:52px;display:flex;align-items:center;justify-content:space-between;pa
 
 <!-- WALKTHROUGH -->
 <div class="wt-panel" id="wt-panel" style="display:none;">
-  <div class="wt-hd"><span class="wt-hd-title">👋 Quick start guide</span><button class="wt-x" onclick="closeWt()">×</button></div>
+  <div class="wt-header"><span class="wt-header-title">👋 Quick start guide</span><button class="wt-close" onclick="closeWt()">×</button></div>
   <div class="wt-body"><div class="wt-steps" id="wt-steps"></div></div>
-  <div class="wt-ft">
-    <button class="wt-btn wt-prev" onclick="wtPrev()">← Back</button>
-    <button class="wt-btn wt-next" onclick="wtNext()" id="wt-next-btn">Next →</button>
-  </div>
+  <div class="wt-footer"><button class="wt-btn wt-prev" onclick="wtPrev()">← Back</button><button class="wt-btn wt-next-btn" onclick="wtNext()" id="wt-next">Next →</button></div>
 </div>
 
-<!-- Hidden QR container for PDF -->
-<div id="qr-canvas-wrap-hidden" style="position:absolute;left:-9999px;top:0;width:60px;height:60px;"></div>
+<div id="qr-hidden" style="position:absolute;left:-9999px;top:0;width:50px;height:50px;"></div>
 
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-/* ─── STATE ─── */
-let lang='en', companies=[], activeId='', items=[], logo='', styleText='', styleLoaded=false, supplierHistory=[], autoSaveTimer=null, wtStep=0, currentDocData=null, qrDataURL='';
+let lang='en',companies=[],activeId='',items=[],logo='',styleText='',styleLoaded=false,supplierHistory=[],saveTimer=null,wtStep=0,curData=null,qrURL='';
 
-/* ─── TEMPLATES ─── */
-const TEMPLATES={
-  trading:{name:'General Trading',items:[{d:'Product/item description',q:'1',u:'pcs'}],tone:'formal',notes:''},
-  construction:{name:'Construction',items:[{d:'Portland cement (50kg bags)',q:'500',u:'bags'},{d:'Steel rebar 12mm diameter',q:'2000',u:'kg'},{d:'Safety helmets (EN397 certified)',q:'50',u:'pcs'},{d:'Scaffolding pipes 6m',q:'100',u:'pcs'},{d:'High-visibility vests',q:'50',u:'pcs'}],tone:'formal',notes:'All materials must comply with SASO standards. Safety equipment must carry valid CE/EN certifications. Please include material test certificates with your quote.'},
-  medical:{name:'Medical & Healthcare',items:[{d:'Surgical disposable gloves (medium)',q:'5000',u:'pairs'},{d:'Type IIR surgical face masks',q:'10000',u:'pcs'},{d:'70% isopropyl alcohol (500ml)',q:'200',u:'bottles'},{d:'Disposable syringes 5ml',q:'2000',u:'pcs'},{d:'IV cannula 18G',q:'500',u:'pcs'}],tone:'formal',notes:'All medical supplies must be CE marked or FDA approved. Cold chain requirements must be specified for temperature-sensitive items. Please attach batch certificates and expiry dates.'},
-  events:{name:'Events & Hospitality',items:[{d:'Round banquet tables (180cm)',q:'30',u:'pcs'},{d:'Banquet chairs with covers',q:'300',u:'pcs'},{d:'LED stage lighting rig',q:'1',u:'set'},{d:'Sound system (PA 5000W)',q:'1',u:'set'},{d:'Catering service (3-course meal)',q:'250',u:'covers'}],tone:'friendly',notes:'Please include setup and teardown times. Quote must specify staffing levels included. Confirm availability for the event date.'},
-  manufacturing:{name:'Manufacturing',items:[{d:'Cold-rolled steel sheet 2mm',q:'5000',u:'kg'},{d:'Industrial lubricant oil 20L',q:'50',u:'drums'},{d:'Ball bearings 6205-2RS',q:'200',u:'pcs'},{d:'Packaging cartons (medium)',q:'1000',u:'pcs'},{d:'Industrial gloves (cut-resistant)',q:'100',u:'pairs'}],tone:'formal',notes:'All raw materials must include mill certificates. Packaging must meet export standards. Provide lead time and minimum order quantities.'}
+/* TEMPLATES */
+const TMPLS={
+  trading:{items:[{d:'Product/item description',q:'1',u:'pcs'}],tone:'formal',notes:''},
+  construction:{items:[{d:'Portland cement (50kg bags)',q:'500',u:'bags'},{d:'Steel rebar 12mm',q:'2000',u:'kg'},{d:'Safety helmets (EN397)',q:'50',u:'pcs'},{d:'Scaffolding pipes 6m',q:'100',u:'pcs'},{d:'High-visibility vests',q:'50',u:'pcs'}],tone:'formal',notes:'All materials must comply with SASO standards. Safety equipment must carry valid CE/EN certifications.'},
+  medical:{items:[{d:'Surgical gloves — medium',q:'5000',u:'pairs'},{d:'Type IIR face masks',q:'10000',u:'pcs'},{d:'70% isopropyl alcohol 500ml',q:'200',u:'bottles'},{d:'Disposable syringes 5ml',q:'2000',u:'pcs'},{d:'IV cannula 18G',q:'500',u:'pcs'}],tone:'formal',notes:'All medical supplies must be CE marked or FDA approved. Please attach batch certificates and expiry dates.'},
+  events:{items:[{d:'Round banquet tables 180cm',q:'30',u:'pcs'},{d:'Banquet chairs with covers',q:'300',u:'pcs'},{d:'LED stage lighting rig',q:'1',u:'set'},{d:'PA sound system 5000W',q:'1',u:'set'},{d:'Catering — 3-course meal',q:'250',u:'covers'}],tone:'friendly',notes:'Please include setup and teardown times. Confirm availability for the event date.'},
+  manufacturing:{items:[{d:'Cold-rolled steel sheet 2mm',q:'5000',u:'kg'},{d:'Industrial lubricant oil 20L',q:'50',u:'drums'},{d:'Ball bearings 6205-2RS',q:'200',u:'pcs'},{d:'Packaging cartons (medium)',q:'1000',u:'pcs'},{d:'Cut-resistant gloves',q:'100',u:'pairs'}],tone:'formal',notes:'All raw materials must include mill certificates. Provide lead time and minimum order quantities.'}
 };
 
-/* ─── LANGUAGE STRINGS (all 11, verified) ─── */
+/* LANGUAGE STRINGS */
 const L={
-  en:{rfq:'Request for Quotation',subject:'Subject',intro:'Introduction',items:'Requested Items',terms:'Terms & Conditions',closing:'Next Steps',dear:'Dear',vendor:'Vendor to fill',validity:'Quote validity',deadline:'Submission deadline',startdate:'Project start',payment:'Payment terms',delivery:'Delivery',days:'30 days',tbc:'TBC',
-    th:['#','Description','Qty','Unit','Unit Price'],
-    tl:(p)=>['Quotation must remain valid for a minimum of 30 days from submission.','Delivery to the stated address only. Partial shipments require prior written consent.',`Payment: ${p} from receipt of verified invoice.`,'All goods must comply with applicable standards. Attach relevant certifications.'],
-    cl:(e,c,d)=>`Please send your quotation to ${e||'our procurement team'}${c?' (Attn: '+c+(d?', '+d:'')+')'||'':''}. Confirm receipt within 48 hours.`,
-    ip:{formal:(c,s,p)=>`We are writing on behalf of ${c} to formally request your best quotation for: ${p}. ${s} has been identified as a preferred vendor and we look forward to a detailed proposal.`,friendly:(c,s,p)=>`Hope this finds you well. The team at ${c} is sourcing for ${p} and thought of ${s} immediately given our positive track record. A detailed quote at your earliest convenience would be appreciated.`,urgent:(c,s,p)=>`${c} requires an urgent quotation for ${p}. This is time-sensitive — submissions after the deadline below will not be considered.`},
-    pl:{net30:'Net 30 days',net60:'Net 60 days',advance:'Advance payment',lc:'Letter of Credit'}},
-  ar:{rfq:'طلب عروض أسعار',subject:'الموضوع',intro:'مقدمة',items:'الأصناف المطلوبة',terms:'الشروط والأحكام',closing:'الخطوات التالية',dear:'السيد/السيدة',vendor:'يُعبأ من المورد',validity:'صلاحية العرض',deadline:'الموعد النهائي',startdate:'تاريخ البدء',payment:'شروط الدفع',delivery:'التسليم',days:'30 يوماً',tbc:'يُحدد',
-    th:['#','البيان','الكمية','الوحدة','سعر الوحدة'],
-    tl:(p)=>['يجب أن يظل عرض الأسعار سارياً لمدة لا تقل عن 30 يوماً.','يشترط التسليم إلى العنوان المحدد. يستلزم التسليم الجزئي موافقة كتابية مسبقة.',`شروط الدفع: ${p} من استلام الفاتورة المعتمدة.`,'يجب استيفاء اشتراطات المعايير المعتمدة. يُرجى إرفاق الشهادات مع العرض.'],
-    cl:(e,c,d)=>`يُرجى إرسال عرضكم إلى ${e||'فريق المشتريات'}${c?' (عناية: '+c+(d?'، '+d:'')+')'||'':''}. نرجو تأكيد الاستلام خلال 48 ساعة.`,
-    ip:{formal:(c,s,p)=>`يسعد شركة ${c} التواصل معكم لتقديم هذا الطلب الرسمي لعروض الأسعار المتعلق بـ${p}. وقد تم اختيار ${s} كمورد معتمد لدينا، ونتطلع إلى تلقي عرضكم التفصيلي.`,friendly:(c,s,p)=>`نأمل أن يجدكم هذا الخطاب بخير. يعمل فريق ${c} على توفير متطلبات ${p}، وقد تبادر اسم ${s} فوراً نظراً للتعاون الجيد الذي يجمعنا.`,urgent:(c,s,p)=>`تحتاج ${c} إلى عرض أسعار عاجل لـ${p}. هذا الطلب ذو أولوية قصوى — لن يُنظر في العروض الواردة بعد الموعد النهائي.`},
-    pl:{net30:'صافي 30 يوم',net60:'صافي 60 يوم',advance:'دفع مقدم',lc:'خطاب اعتماد'}},
-  zh:{rfq:'询价函',subject:'主题',intro:'说明',items:'询价清单',terms:'条款与条件',closing:'后续步骤',dear:'尊敬的',vendor:'由供应商填写',validity:'报价有效期',deadline:'截止日期',startdate:'项目开始日期',payment:'付款条款',delivery:'交货地点',days:'30天',tbc:'待确认',
-    th:['序号','品名/描述','数量','单位','单价'],
-    tl:(p)=>['报价自提交之日起至少有效30天。','货物须送至指定地址，部分交货须事先书面同意。',`付款方式：${p}，自收到经核实发票起计算。`,'所有货物须符合适用标准，请随报价附上相关证书。'],
-    cl:(e,c,d)=>`请将报价发送至 ${e||'我们的采购团队'}${c?' （收件人：'+c+(d?'，'+d:'')+'）'||'':''}。请在48小时内确认收件。`,
-    ip:{formal:(c,s,p)=>`兹代表${c}，就${p}事宜正式向${s}发出询价邀请，请贵方提供详细且具竞争力的报价。`,friendly:(c,s,p)=>`您好！${c}目前正在为${p}进行采购，第一时间想到了${s}，期待收到您的详细报价。`,urgent:(c,s,p)=>`${c}现就${p}发出紧急询价，请务必在截止日期前提交报价，逾期恕不受理。`},
-    pl:{net30:'净30天',net60:'净60天',advance:'预付款',lc:'信用证'}},
-  ja:{rfq:'見積依頼書',subject:'件名',intro:'はじめに',items:'依頼品目',terms:'条件',closing:'次のステップ',dear:'拝啓',vendor:'サプライヤー記入',validity:'有効期限',deadline:'提出期限',startdate:'開始日',payment:'支払条件',delivery:'納品場所',days:'30日間',tbc:'確認中',
-    th:['No.','品名','数量','単位','単価'],
-    tl:(p)=>['見積は提出日から最低30日間有効とすること。','納品は指定住所のみ。分割納品は事前書面承認が必要。',`支払条件：${p}、検収済み請求書受領後。`,'すべての製品は適用基準に準拠すること。関連証明書を添付すること。'],
-    cl:(e,c,d)=>`見積書は${e||'購買チーム'}${c?' （担当：'+c+(d?'、'+d:'')+'）'||'':''}宛にご送付ください。48時間以内に受領確認をお願いします。`,
-    ip:{formal:(c,s,p)=>`${c}を代表いたしまして、${p}に関する件で${s}様へ正式に見積依頼を申し上げます。詳細なご提案をお待ちしております。`,friendly:(c,s,p)=>`お世話になっております。${c}では現在、${p}の調達を進めており、これまでのお取引の実績から${s}様にご連絡いたしました。`,urgent:(c,s,p)=>`${c}では${p}について至急見積をお願いしたく存じます。期日以降の提出はご対応いたしかねますのでご了承ください。`},
-    pl:{net30:'支払期限30日',net60:'支払期限60日',advance:'前払い',lc:'信用状'}},
-  ko:{rfq:'견적 요청서',subject:'제목',intro:'소개',items:'요청 품목',terms:'조건',closing:'다음 단계',dear:'귀하',vendor:'공급업체 기재',validity:'유효 기간',deadline:'제출 기한',startdate:'시작일',payment:'결제 조건',delivery:'납품 장소',days:'30일',tbc:'확인 예정',
-    th:['No.','품목','수량','단위','단가'],
-    tl:(p)=>['견적서는 제출일로부터 최소 30일간 유효해야 합니다.','납품은 지정된 주소로만 가능합니다. 부분 납품 시 사전 서면 동의가 필요합니다.',`결제: 검증된 청구서 수령 후 ${p}.`,'모든 제품은 관련 기준을 준수해야 합니다.'],
-    cl:(e,c,d)=>`견적서를 ${e||'구매팀'}${c?' （담당: '+c+(d?', '+d:'')+'）'||'':''}으로 보내주시기 바랍니다. 48시간 내에 수신 확인 부탁드립니다.`,
-    ip:{formal:(c,s,p)=>`${c}를 대표하여 ${p}에 관한 건으로 ${s}에 공식 견적을 요청드립니다.`,friendly:(c,s,p)=>`안녕하세요. ${c}에서는 현재 ${p}와 관련하여 공급업체를 찾고 있으며, 그동안의 협력 관계를 바탕으로 ${s}에 연락드립니다.`,urgent:(c,s,p)=>`${c}에서 ${p}에 대한 긴급 견적을 요청드립니다. 기한 이후 제출된 견적은 검토하지 않습니다.`},
-    pl:{net30:'30일 후 결제',net60:'60일 후 결제',advance:'선불',lc:'신용장'}},
-  fr:{rfq:'Demande de Devis',subject:'Objet',intro:'Introduction',items:'Articles demandés',terms:'Termes et Conditions',closing:'Prochaines étapes',dear:'Cher/Chère',vendor:'À remplir',validity:'Validité',deadline:'Date limite',startdate:'Date de début',payment:'Paiement',delivery:'Livraison',days:'30 jours',tbc:'À confirmer',
-    th:['#','Description','Qté','Unité','Prix unitaire'],
-    tl:(p)=>['Le devis doit rester valable 30 jours minimum.','Livraison uniquement à l\'adresse indiquée.',`Paiement : ${p} à réception de la facture vérifiée.`,'Tous les produits doivent être conformes aux normes applicables.'],
-    cl:(e,c,d)=>`Veuillez envoyer votre devis à ${e||'notre équipe achats'}${c?' (À l\'att. de : '+c+(d?', '+d:'')+')'||'':''}. Confirmez la réception sous 48h.`,
-    ip:{formal:(c,s,p)=>`Nous écrivons au nom de ${c} pour demander formellement votre meilleur devis pour : ${p}. ${s} a été retenu comme fournisseur privilégié.`,friendly:(c,s,p)=>`J'espère que ce message vous trouve en bonne forme. ${c} recherche des fournisseurs pour ${p} et a immédiatement pensé à ${s}.`,urgent:(c,s,p)=>`${c} nécessite un devis urgent pour ${p}. Les soumissions après la date limite ne seront pas prises en compte.`},
-    pl:{net30:'Net 30 jours',net60:'Net 60 jours',advance:'Paiement anticipé',lc:'Lettre de crédit'}},
-  de:{rfq:'Angebotsanfrage',subject:'Betreff',intro:'Einleitung',items:'Angeforderte Artikel',terms:'Bedingungen',closing:'Nächste Schritte',dear:'Sehr geehrte/r',vendor:'Vom Anbieter',validity:'Gültigkeit',deadline:'Abgabefrist',startdate:'Startdatum',payment:'Zahlung',delivery:'Lieferung',days:'30 Tage',tbc:'Zu bestätigen',
-    th:['#','Beschreibung','Menge','Einheit','Stückpreis'],
-    tl:(p)=>['Das Angebot muss mindestens 30 Tage gültig bleiben.','Lieferung nur an die angegebene Adresse.',`Zahlung: ${p} ab Eingang der Rechnung.`,'Alle Waren müssen den geltenden Normen entsprechen.'],
-    cl:(e,c,d)=>`Senden Sie Ihr Angebot an ${e||'unser Einkaufsteam'}${c?' (z.H.: '+c+(d?', '+d:'')+')'||'':''}. Bitte bestätigen Sie den Eingang innerhalb von 48 Stunden.`,
-    ip:{formal:(c,s,p)=>`Wir schreiben im Namen von ${c}, um Ihr bestes Angebot für ${p} offiziell anzufordern. ${s} wurde als bevorzugter Lieferant identifiziert.`,friendly:(c,s,p)=>`Ich hoffe, diese Nachricht erreicht Sie wohlauf. Das Team von ${c} sucht Lieferanten für ${p} und hat sofort an ${s} gedacht.`,urgent:(c,s,p)=>`${c} benötigt dringend ein Angebot für ${p}. Nach Ablauf der Frist eingegangene Angebote werden nicht berücksichtigt.`},
-    pl:{net30:'Netto 30 Tage',net60:'Netto 60 Tage',advance:'Vorauszahlung',lc:'Akkreditiv'}},
-  es:{rfq:'Solicitud de Cotización',subject:'Asunto',intro:'Introducción',items:'Artículos Solicitados',terms:'Términos y Condiciones',closing:'Próximos Pasos',dear:'Estimado/a',vendor:'A completar',validity:'Validez',deadline:'Fecha límite',startdate:'Fecha inicio',payment:'Pago',delivery:'Entrega',days:'30 días',tbc:'Por confirmar',
-    th:['#','Descripción','Cant.','Unidad','Precio unitario'],
-    tl:(p)=>['La cotización debe ser válida por mínimo 30 días.',`Pago: ${p} desde la recepción de la factura.`,'Entrega únicamente a la dirección indicada.','Todos los bienes deben cumplir con las normas aplicables.'],
-    cl:(e,c,d)=>`Envíe su cotización a ${e||'nuestro equipo de compras'}${c?' (A/A: '+c+(d?', '+d:'')+')'||'':''}. Confirme recepción en 48 horas.`,
-    ip:{formal:(c,s,p)=>`Nos dirigimos a ${s} en nombre de ${c} para solicitar formalmente su mejor cotización para: ${p}.`,friendly:(c,s,p)=>`Esperamos que este mensaje les encuentre bien. ${c} busca proveedores para ${p} y pensó inmediatamente en ${s}.`,urgent:(c,s,p)=>`${c} requiere una cotización urgente para ${p}. Las propuestas tras la fecha límite no serán consideradas.`},
-    pl:{net30:'Neto 30 días',net60:'Neto 60 días',advance:'Pago anticipado',lc:'Carta de crédito'}},
-  tr:{rfq:'Teklif Talebi',subject:'Konu',intro:'Giriş',items:'Talep Edilen Ürünler',terms:'Şartlar',closing:'Sonraki Adımlar',dear:'Sayın',vendor:'Tedarikçi dolduracak',validity:'Geçerlilik',deadline:'Son tarih',startdate:'Başlangıç tarihi',payment:'Ödeme',delivery:'Teslimat',days:'30 gün',tbc:'Belirlenecek',
-    th:['#','Açıklama','Miktar','Birim','Birim Fiyat'],
-    tl:(p)=>['Teklif en az 30 gün geçerli kalmalıdır.','Teslimat yalnızca belirtilen adrese yapılmalıdır.',`Ödeme: ${p}, doğrulanmış faturanın alınmasından itibaren.`,'Tüm ürünler ilgili standartlara uygun olmalıdır.'],
-    cl:(e,c,d)=>`Teklifinizi ${e||'satın alma ekibimize'}${c?' (İlg.: '+c+(d?', '+d:'')+')'||'':''}gönderin. 48 saat içinde alındığını onaylayın.`,
-    ip:{formal:(c,s,p)=>`${c} adına, ${p} konusundaki tedarik gereksinimlerimiz için en iyi teklifinizi resmi olarak talep etmek amacıyla yazıyoruz. ${s} tercih edilen tedarikçi olarak belirlenmiştir.`,friendly:(c,s,p)=>`Umarız bu mesaj sizi iyi bulur. ${c} ekibi ${p} için kaynak arıyor ve ${s} hemen akla geldi.`,urgent:(c,s,p)=>`${c}, ${p} için acil teklif talep etmektedir. Son tarihten sonra alınan teklifler değerlendirmeye alınmayacaktır.`},
-    pl:{net30:'Net 30 gün',net60:'Net 60 gün',advance:'Peşin ödeme',lc:'Akreditif'}},
-  ur:{rfq:'قیمت کی درخواست',subject:'موضوع',intro:'تعارف',items:'مطلوبہ اشیاء',terms:'شرائط و ضوابط',closing:'اگلے اقدامات',dear:'محترم',vendor:'سپلائر پُر کرے',validity:'مدت',deadline:'آخری تاریخ',startdate:'شروع کی تاریخ',payment:'ادائیگی',delivery:'ترسیل',days:'30 دن',tbc:'طے ہوگا',
-    th:['#','تفصیل','مقدار','اکائی','فی اکائی قیمت'],
-    tl:(p)=>['کوٹیشن کم از کم 30 دن کے لیے درست ہونی چاہیے۔','ترسیل صرف مذکورہ پتے پر ہوگی۔',`ادائیگی: ${p} تصدیق شدہ انوائس موصول ہونے کے بعد۔`,'تمام اشیاء متعلقہ معیارات کے مطابق ہونی چاہئیں۔'],
-    cl:(e,c,d)=>`براہ کرم کوٹیشن ${e||'ہماری خریداری ٹیم کو'}${c?' (توجہ: '+c+')'||'':''}بھیجیں۔ 48 گھنٹوں میں موصولی کی تصدیق کریں۔`,
-    ip:{formal:(c,s,p)=>`ہم ${c} کی جانب سے ${p} کے سلسلے میں ${s} سے باضابطہ قیمت کی درخواست کر رہے ہیں۔`,friendly:(c,s,p)=>`امید ہے یہ پیغام آپ کو اچھے حال میں پائے۔ ${c} اس وقت ${p} کے لیے سپلائرز تلاش کر رہی ہے۔`,urgent:(c,s,p)=>`${c} کو ${p} کے لیے فوری قیمت درکار ہے۔ آخری تاریخ کے بعد کوئی کوٹیشن قابل غور نہیں ہوگی۔`},
-    pl:{net30:'خالص 30 دن',net60:'خالص 60 دن',advance:'پیشگی ادائیگی',lc:'لیٹر آف کریڈٹ'}},
-  id:{rfq:'Permintaan Penawaran',subject:'Perihal',intro:'Pendahuluan',items:'Barang Diminta',terms:'Syarat & Ketentuan',closing:'Langkah Selanjutnya',dear:'Yth.',vendor:'Diisi vendor',validity:'Masa berlaku',deadline:'Batas waktu',startdate:'Tanggal mulai',payment:'Pembayaran',delivery:'Pengiriman',days:'30 hari',tbc:'Dikonfirmasi',
-    th:['#','Deskripsi','Jml','Satuan','Harga Satuan'],
-    tl:(p)=>['Penawaran harus berlaku minimal 30 hari sejak pengajuan.','Pengiriman hanya ke alamat yang ditentukan.',`Pembayaran: ${p} sejak penerimaan faktur.`,'Semua barang harus memenuhi standar yang berlaku.'],
-    cl:(e,c,d)=>`Kirimkan penawaran ke ${e||'tim pengadaan kami'}${c?' (u.p.: '+c+')'||'':''}. Mohon konfirmasi penerimaan dalam 48 jam.`,
-    ip:{formal:(c,s,p)=>`Kami menulis atas nama ${c} untuk meminta penawaran terbaik Anda untuk: ${p}. ${s} telah diidentifikasi sebagai vendor pilihan kami.`,friendly:(c,s,p)=>`Semoga pesan ini menemukan Anda dalam keadaan baik. ${c} mencari pemasok untuk ${p} dan langsung memikirkan ${s}.`,urgent:(c,s,p)=>`${c} membutuhkan penawaran segera untuk ${p}. Penawaran setelah batas waktu tidak akan dipertimbangkan.`},
-    pl:{net30:'Net 30 hari',net60:'Net 60 hari',advance:'Pembayaran di muka',lc:'Letter of Credit'}}
+  en:{rfq:'Request for Quotation',subject:'Subject',intro:'Introduction',items:'Requested Items',terms:'Terms & Conditions',closing:'Next Steps',dear:'Dear',vendor:'Vendor to fill',validity:'Quote validity',deadline:'Deadline',startdate:'Project start',payment:'Payment',delivery:'Delivery',days:'30 days',tbc:'TBC',th:['#','Description','Qty','Unit','Unit Price'],tl:(p)=>['Quotation must remain valid for a minimum of 30 days.','Delivery to the stated address only. Partial shipments require prior written consent.',`Payment: ${p} from receipt of verified invoice.`,'All goods must comply with applicable standards. Attach certifications.'],cl:(e,c,d)=>`Send your quotation to ${e||'our procurement team'}${c?' (Attn: '+c+(d?', '+d:'')+')'||'':''}. Confirm receipt within 48 hours.`,ip:{formal:(c,s,p)=>`We write on behalf of ${c} to formally request your best quotation for: ${p}. ${s} has been selected as a preferred vendor and we look forward to a detailed proposal.`,friendly:(c,s,p)=>`Hope this finds you well. ${c} is sourcing for ${p} and thought of ${s} immediately given our positive track record. A detailed quote at your earliest convenience would be appreciated.`,urgent:(c,s,p)=>`${c} requires an urgent quotation for ${p}. This is time-sensitive — submissions after the deadline below will not be considered.`},pl:{net30:'Net 30 days',net60:'Net 60 days',advance:'Advance payment',lc:'Letter of Credit'}},
+  ar:{rfq:'طلب عروض أسعار',subject:'الموضوع',intro:'مقدمة',items:'الأصناف المطلوبة',terms:'الشروط والأحكام',closing:'الخطوات التالية',dear:'السيد/السيدة',vendor:'يُعبأ من المورد',validity:'صلاحية العرض',deadline:'الموعد النهائي',startdate:'تاريخ البدء',payment:'شروط الدفع',delivery:'التسليم',days:'30 يوماً',tbc:'يُحدد',th:['#','البيان','الكمية','الوحدة','سعر الوحدة'],tl:(p)=>['يجب أن يظل عرض الأسعار سارياً لمدة لا تقل عن 30 يوماً.','يشترط التسليم إلى العنوان المحدد. يستلزم التسليم الجزئي موافقة كتابية.',`شروط الدفع: ${p} من استلام الفاتورة المعتمدة.`,'يجب استيفاء اشتراطات المعايير المعتمدة. يُرجى إرفاق الشهادات.'],cl:(e,c,d)=>`يُرجى إرسال عرضكم إلى ${e||'فريق المشتريات'}${c?' (عناية: '+c+(d?'، '+d:'')+')'||'':''}. نرجو تأكيد الاستلام خلال 48 ساعة.`,ip:{formal:(c,s,p)=>`يسعد شركة ${c} تقديم هذا الطلب الرسمي لعروض الأسعار المتعلق بـ${p}. وقد تم اختيار ${s} كمورد معتمد لدينا.`,friendly:(c,s,p)=>`نأمل أن يجدكم هذا الخطاب بخير. يعمل فريق ${c} على توفير متطلبات ${p}، وقد تبادر اسم ${s} فوراً نظراً للتعاون الجيد.`,urgent:(c,s,p)=>`تحتاج ${c} إلى عرض أسعار عاجل لـ${p}. هذا الطلب ذو أولوية قصوى.`},pl:{net30:'صافي 30 يوم',net60:'صافي 60 يوم',advance:'دفع مقدم',lc:'خطاب اعتماد'}},
+  zh:{rfq:'询价函',subject:'主题',intro:'说明',items:'询价清单',terms:'条款与条件',closing:'后续步骤',dear:'尊敬的',vendor:'由供应商填写',validity:'报价有效期',deadline:'截止日期',startdate:'项目开始日期',payment:'付款条款',delivery:'交货地点',days:'30天',tbc:'待确认',th:['序号','品名/描述','数量','单位','单价'],tl:(p)=>['报价自提交之日起至少有效30天。','货物须送至指定地址，部分交货须事先书面同意。',`付款方式：${p}，自收到经核实发票起计算。`,'所有货物须符合适用标准，请随报价附上相关证书。'],cl:(e,c,d)=>`请将报价发送至 ${e||'我们的采购团队'}${c?' （收件人：'+c+(d?'，'+d:'')+'）'||'':''}。请在48小时内确认收件。`,ip:{formal:(c,s,p)=>`兹代表${c}，就${p}事宜正式向${s}发出询价邀请，请贵方提供详细且具竞争力的报价。`,friendly:(c,s,p)=>`您好！${c}目前正在为${p}进行采购，第一时间想到了${s}，期待收到您的详细报价。`,urgent:(c,s,p)=>`${c}现就${p}发出紧急询价，请务必在截止日期前提交报价，逾期恕不受理。`},pl:{net30:'净30天',net60:'净60天',advance:'预付款',lc:'信用证'}},
+  ja:{rfq:'見積依頼書',subject:'件名',intro:'はじめに',items:'依頼品目',terms:'条件',closing:'次のステップ',dear:'拝啓',vendor:'サプライヤー記入',validity:'有効期限',deadline:'提出期限',startdate:'開始日',payment:'支払条件',delivery:'納品場所',days:'30日間',tbc:'確認中',th:['No.','品名','数量','単位','単価'],tl:(p)=>['見積は提出日から最低30日間有効とすること。','納品は指定住所のみ。分割納品は事前書面承認が必要。',`支払条件：${p}、検収済み請求書受領後。`,'すべての製品は適用基準に準拠すること。'],cl:(e,c,d)=>`見積書は${e||'購買チーム'}${c?' （担当：'+c+(d?'、'+d:'')+'）'||'':''}宛にご送付ください。48時間以内に受領確認をお願いします。`,ip:{formal:(c,s,p)=>`${c}を代表いたしまして、${p}に関する件で${s}様へ正式に見積依頼を申し上げます。`,friendly:(c,s,p)=>`お世話になっております。${c}では${p}の調達を進めており、${s}様にご連絡いたしました。`,urgent:(c,s,p)=>`${c}では${p}について至急見積をお願いします。期日以降の提出はご対応いたしかねます。`},pl:{net30:'支払期限30日',net60:'支払期限60日',advance:'前払い',lc:'信用状'}},
+  ko:{rfq:'견적 요청서',subject:'제목',intro:'소개',items:'요청 품목',terms:'조건',closing:'다음 단계',dear:'귀하',vendor:'공급업체 기재',validity:'유효 기간',deadline:'제출 기한',startdate:'시작일',payment:'결제 조건',delivery:'납품 장소',days:'30일',tbc:'확인 예정',th:['No.','품목','수량','단위','단가'],tl:(p)=>['견적서는 제출일로부터 최소 30일간 유효해야 합니다.','납품은 지정된 주소로만 가능합니다.',`결제: 검증된 청구서 수령 후 ${p}.`,'모든 제품은 관련 기준을 준수해야 합니다.'],cl:(e,c,d)=>`견적서를 ${e||'구매팀'}${c?' （담당: '+c+(d?', '+d:'')+'）'||'':''}으로 보내주시기 바랍니다. 48시간 내에 수신 확인 부탁드립니다.`,ip:{formal:(c,s,p)=>`${c}를 대표하여 ${p}에 관한 건으로 ${s}에 공식 견적을 요청드립니다.`,friendly:(c,s,p)=>`안녕하세요. ${c}에서는 ${p}와 관련하여 ${s}에 연락드립니다.`,urgent:(c,s,p)=>`${c}에서 ${p}에 대한 긴급 견적을 요청드립니다. 기한 이후 제출은 검토하지 않습니다.`},pl:{net30:'30일 후 결제',net60:'60일 후 결제',advance:'선불',lc:'신용장'}},
+  fr:{rfq:'Demande de Devis',subject:'Objet',intro:'Introduction',items:'Articles demandés',terms:'Termes et Conditions',closing:'Prochaines étapes',dear:'Cher/Chère',vendor:'À remplir',validity:'Validité',deadline:'Date limite',startdate:'Date de début',payment:'Paiement',delivery:'Livraison',days:'30 jours',tbc:'À confirmer',th:['#','Description','Qté','Unité','Prix unitaire'],tl:(p)=>['Le devis doit rester valable 30 jours minimum.','Livraison uniquement à l\'adresse indiquée.',`Paiement : ${p} à réception de la facture.`,'Tous les produits doivent être conformes aux normes applicables.'],cl:(e,c,d)=>`Envoyez votre devis à ${e||'notre équipe achats'}${c?' (À l\'att. de : '+c+(d?', '+d:'')+')'||'':''}. Confirmez la réception sous 48h.`,ip:{formal:(c,s,p)=>`Nous écrivons au nom de ${c} pour demander formellement votre meilleur devis pour : ${p}. ${s} a été retenu comme fournisseur privilégié.`,friendly:(c,s,p)=>`J'espère que ce message vous trouve bien. ${c} recherche des fournisseurs pour ${p} et a pensé à ${s}.`,urgent:(c,s,p)=>`${c} nécessite un devis urgent pour ${p}. Les soumissions après la date limite ne seront pas prises en compte.`},pl:{net30:'Net 30 jours',net60:'Net 60 jours',advance:'Paiement anticipé',lc:'Lettre de crédit'}},
+  de:{rfq:'Angebotsanfrage',subject:'Betreff',intro:'Einleitung',items:'Angeforderte Artikel',terms:'Bedingungen',closing:'Nächste Schritte',dear:'Sehr geehrte/r',vendor:'Vom Anbieter',validity:'Gültigkeit',deadline:'Abgabefrist',startdate:'Startdatum',payment:'Zahlung',delivery:'Lieferung',days:'30 Tage',tbc:'TBC',th:['#','Beschreibung','Menge','Einheit','Stückpreis'],tl:(p)=>['Das Angebot muss mindestens 30 Tage gültig bleiben.','Lieferung nur an die angegebene Adresse.',`Zahlung: ${p} ab Eingang der Rechnung.`,'Alle Waren müssen den geltenden Normen entsprechen.'],cl:(e,c,d)=>`Senden Sie Ihr Angebot an ${e||'unser Einkaufsteam'}${c?' (z.H.: '+c+(d?', '+d:'')+')'||'':''}. Bestätigen Sie den Eingang innerhalb von 48 Stunden.`,ip:{formal:(c,s,p)=>`Wir schreiben im Namen von ${c}, um Ihr bestes Angebot für ${p} anzufordern. ${s} wurde als bevorzugter Lieferant identifiziert.`,friendly:(c,s,p)=>`Ich hoffe, diese Nachricht erreicht Sie wohlauf. ${c} sucht Lieferanten für ${p} und hat sofort an ${s} gedacht.`,urgent:(c,s,p)=>`${c} benötigt dringend ein Angebot für ${p}. Angebote nach Fristablauf werden nicht berücksichtigt.`},pl:{net30:'Netto 30 Tage',net60:'Netto 60 Tage',advance:'Vorauszahlung',lc:'Akkreditiv'}},
+  es:{rfq:'Solicitud de Cotización',subject:'Asunto',intro:'Introducción',items:'Artículos Solicitados',terms:'Términos y Condiciones',closing:'Próximos Pasos',dear:'Estimado/a',vendor:'A completar',validity:'Validez',deadline:'Fecha límite',startdate:'Fecha inicio',payment:'Pago',delivery:'Entrega',days:'30 días',tbc:'Por confirmar',th:['#','Descripción','Cant.','Unidad','Precio unitario'],tl:(p)=>['La cotización debe ser válida por mínimo 30 días.',`Pago: ${p} desde la recepción de la factura.`,'Entrega únicamente a la dirección indicada.','Todos los bienes deben cumplir con las normas aplicables.'],cl:(e,c,d)=>`Envíe su cotización a ${e||'nuestro equipo de compras'}${c?' (A/A: '+c+(d?', '+d:'')+')'||'':''}. Confirme recepción en 48 horas.`,ip:{formal:(c,s,p)=>`Nos dirigimos a ${s} en nombre de ${c} para solicitar formalmente su mejor cotización para: ${p}.`,friendly:(c,s,p)=>`Esperamos que este mensaje les encuentre bien. ${c} busca proveedores para ${p} y pensó inmediatamente en ${s}.`,urgent:(c,s,p)=>`${c} requiere una cotización urgente para ${p}. Las propuestas tras la fecha límite no serán consideradas.`},pl:{net30:'Neto 30 días',net60:'Neto 60 días',advance:'Pago anticipado',lc:'Carta de crédito'}},
+  tr:{rfq:'Teklif Talebi',subject:'Konu',intro:'Giriş',items:'Talep Edilen Ürünler',terms:'Şartlar',closing:'Sonraki Adımlar',dear:'Sayın',vendor:'Tedarikçi dolduracak',validity:'Geçerlilik',deadline:'Son tarih',startdate:'Başlangıç',payment:'Ödeme',delivery:'Teslimat',days:'30 gün',tbc:'TBD',th:['#','Açıklama','Miktar','Birim','Birim Fiyat'],tl:(p)=>['Teklif en az 30 gün geçerli kalmalıdır.','Teslimat yalnızca belirtilen adrese yapılmalıdır.',`Ödeme: ${p}, fatura alınmasından itibaren.`,'Tüm ürünler ilgili standartlara uygun olmalıdır.'],cl:(e,c,d)=>`Teklifinizi ${e||'satın alma ekibimize'}${c?' (İlg.: '+c+(d?', '+d:'')+')'||'':''}gönderin. 48 saat içinde alındığını onaylayın.`,ip:{formal:(c,s,p)=>`${c} adına ${p} için ${s}'dan resmi teklif talep ediyoruz.`,friendly:(c,s,p)=>`Umarız bu mesaj sizi iyi bulur. ${c} ekibi ${p} için kaynak arıyor ve ${s} hemen akla geldi.`,urgent:(c,s,p)=>`${c}, ${p} için acil teklif talep etmektedir. Son tarihten sonra alınan teklifler değerlendirmeye alınmayacaktır.`},pl:{net30:'Net 30 gün',net60:'Net 60 gün',advance:'Peşin ödeme',lc:'Akreditif'}},
+  ur:{rfq:'قیمت کی درخواست',subject:'موضوع',intro:'تعارف',items:'مطلوبہ اشیاء',terms:'شرائط',closing:'اگلے اقدامات',dear:'محترم',vendor:'سپلائر پُر کرے',validity:'مدت',deadline:'آخری تاریخ',startdate:'شروع کی تاریخ',payment:'ادائیگی',delivery:'ترسیل',days:'30 دن',tbc:'طے ہوگا',th:['#','تفصیل','مقدار','اکائی','قیمت'],tl:(p)=>['کوٹیشن کم از کم 30 دن کے لیے درست ہونی چاہیے۔','ترسیل صرف مذکورہ پتے پر۔',`ادائیگی: ${p} انوائس موصول ہونے کے بعد۔`,'تمام اشیاء متعلقہ معیارات کے مطابق ہونی چاہئیں۔'],cl:(e,c,d)=>`کوٹیشن ${e||'ہماری خریداری ٹیم کو'}${c?' (توجہ: '+c+')'||'':''}بھیجیں۔ 48 گھنٹوں میں موصولی کی تصدیق کریں۔`,ip:{formal:(c,s,p)=>`ہم ${c} کی جانب سے ${p} کے سلسلے میں ${s} سے قیمت کی باضابطہ درخواست کر رہے ہیں۔`,friendly:(c,s,p)=>`امید ہے یہ پیغام آپ کو اچھے حال میں پائے۔ ${c} اس وقت ${p} کے لیے سپلائرز تلاش کر رہی ہے۔`,urgent:(c,s,p)=>`${c} کو ${p} کے لیے فوری قیمت درکار ہے۔ آخری تاریخ کے بعد کوئی کوٹیشن قابل غور نہیں ہوگی۔`},pl:{net30:'خالص 30 دن',net60:'خالص 60 دن',advance:'پیشگی ادائیگی',lc:'لیٹر آف کریڈٹ'}},
+  id:{rfq:'Permintaan Penawaran',subject:'Perihal',intro:'Pendahuluan',items:'Barang Diminta',terms:'Syarat & Ketentuan',closing:'Langkah Selanjutnya',dear:'Yth.',vendor:'Diisi vendor',validity:'Masa berlaku',deadline:'Batas waktu',startdate:'Tanggal mulai',payment:'Pembayaran',delivery:'Pengiriman',days:'30 hari',tbc:'TBC',th:['#','Deskripsi','Jml','Satuan','Harga Satuan'],tl:(p)=>['Penawaran harus berlaku minimal 30 hari sejak pengajuan.','Pengiriman hanya ke alamat yang ditentukan.',`Pembayaran: ${p} sejak penerimaan faktur.`,'Semua barang harus memenuhi standar yang berlaku.'],cl:(e,c,d)=>`Kirimkan penawaran ke ${e||'tim pengadaan kami'}${c?' (u.p.: '+c+')'||'':''}. Konfirmasi penerimaan dalam 48 jam.`,ip:{formal:(c,s,p)=>`Kami menulis atas nama ${c} untuk meminta penawaran terbaik untuk: ${p}. ${s} telah diidentifikasi sebagai vendor pilihan.`,friendly:(c,s,p)=>`Semoga pesan ini menemukan Anda dalam keadaan baik. ${c} mencari pemasok untuk ${p} dan langsung memikirkan ${s}.`,urgent:(c,s,p)=>`${c} membutuhkan penawaran segera untuk ${p}. Penawaran setelah batas waktu tidak akan dipertimbangkan.`},pl:{net30:'Net 30 hari',net60:'Net 60 hari',advance:'Pembayaran di muka',lc:'Letter of Credit'}}
 };
 
-function isRTL(l){return ['ar','ur'].includes(l);}
+function isRTL(l){return['ar','ur'].includes(l);}
 
 /* ─── LANG ─── */
-function setLang(l){
-  lang=l;
-  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===l));
-  autoSave();
-}
+function setLang(l){lang=l;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===l));autoSave();}
 
 /* ─── TEMPLATES ─── */
-function applyTemplate(key){
-  document.querySelectorAll('.tmpl-btn').forEach(b=>b.classList.toggle('active',b.dataset.tmpl===key));
-  const t=TEMPLATES[key];if(!t)return;
-  set('f-tone',t.tone);
-  if(t.notes)set('f-notes',t.notes);
-  items=t.items.map((i,idx)=>({id:'i'+Date.now()+idx,d:i.d,q:i.q,u:i.u}));
+function applyTemplate(k){
+  document.querySelectorAll('.tmpl-btn').forEach(b=>b.classList.toggle('active',b.dataset.tmpl===k));
+  const t=TMPLS[k];if(!t)return;
+  sv('f-tone',t.tone);if(t.notes)sv('f-notes',t.notes);
+  items=t.items.map((i,x)=>({id:'i'+Date.now()+x,d:i.d,q:i.q,u:i.u}));
   renderItems();autoSave();
 }
 
-/* ─── LOCAL STORAGE ─── */
+/* ─── STORAGE ─── */
 const LS={
-  save(){
-    try{
-      localStorage.setItem('rfq_companies',JSON.stringify(companies));
-      localStorage.setItem('rfq_active',activeId);
-      localStorage.setItem('rfq_suppliers',JSON.stringify(supplierHistory));
-      localStorage.setItem('rfq_lang',lang);
-      localStorage.setItem('rfq_form',JSON.stringify({
-        company:v('f-company'),supplier:v('f-supplier'),receiver:v('f-receiver'),
-        contact:v('f-contact'),designation:v('f-designation'),email:v('f-email'),
-        phone:v('f-phone'),website:v('f-website'),project:v('f-project'),
-        startdate:v('f-startdate'),deadline:v('f-deadline'),delivery:v('f-delivery'),
-        tone:v('f-tone'),payment:v('f-payment'),notes:v('f-notes'),items:[...items]
-      }));
-    }catch(e){}
-  },
-  load(){
-    try{
-      companies=JSON.parse(localStorage.getItem('rfq_companies')||'[]');
-      activeId=localStorage.getItem('rfq_active')||'';
-      supplierHistory=JSON.parse(localStorage.getItem('rfq_suppliers')||'[]');
-      const sl=localStorage.getItem('rfq_lang');if(sl)setLang(sl);
-      const form=JSON.parse(localStorage.getItem('rfq_form')||'{}');
-      const fields=['company','supplier','receiver','contact','designation','email','phone','website','project','startdate','deadline','delivery','tone','payment','notes'];
-      fields.forEach(f=>{if(form[f])set('f-'+f,form[f]);});
-      if(form.items&&form.items.length){items=form.items;renderItems();}
-    }catch(e){}
-  }
+  save(){try{localStorage.setItem('rfq_cos',JSON.stringify(companies));localStorage.setItem('rfq_aid',activeId);localStorage.setItem('rfq_sups',JSON.stringify(supplierHistory));localStorage.setItem('rfq_lang',lang);localStorage.setItem('rfq_form',JSON.stringify({co:v('f-company'),sup:v('f-supplier'),rec:v('f-receiver'),cnt:v('f-contact'),des:v('f-designation'),em:v('f-email'),ph:v('f-phone'),wb:v('f-website'),prj:v('f-project'),sd:v('f-startdate'),dl:v('f-deadline'),dlv:v('f-delivery'),tn:v('f-tone'),pm:v('f-payment'),nt:v('f-notes'),items:[...items]}));}catch(e){}},
+  load(){try{companies=JSON.parse(localStorage.getItem('rfq_cos')||'[]');activeId=localStorage.getItem('rfq_aid')||'';supplierHistory=JSON.parse(localStorage.getItem('rfq_sups')||'[]');const sl=localStorage.getItem('rfq_lang');if(sl){lang=sl;document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.dataset.lang===sl));}const f=JSON.parse(localStorage.getItem('rfq_form')||'{}');if(f.co)sv('f-company',f.co);if(f.sup)sv('f-supplier',f.sup);if(f.rec)sv('f-receiver',f.rec);if(f.cnt)sv('f-contact',f.cnt);if(f.des)sv('f-designation',f.des);if(f.em)sv('f-email',f.em);if(f.ph)sv('f-phone',f.ph);if(f.wb)sv('f-website',f.wb);if(f.prj)sv('f-project',f.prj);if(f.sd)sv('f-startdate',f.sd);if(f.dl)sv('f-deadline',f.dl);if(f.dlv)sv('f-delivery',f.dlv);if(f.tn)sv('f-tone',f.tn);if(f.pm)sv('f-payment',f.pm);if(f.nt)sv('f-notes',f.nt);if(f.items&&f.items.length){items=f.items;renderItems();}}catch(e){}}
 };
 function v(id){return document.getElementById(id)?.value?.trim()||'';}
-function set(id,val){const el=document.getElementById(id);if(el)el.value=val;}
-function autoSave(){clearTimeout(autoSaveTimer);autoSaveTimer=setTimeout(()=>{LS.save();const b=document.getElementById('save-badge');b.textContent='✓ Auto-saved';setTimeout(()=>b.textContent='',2200);},1500);}
+function sv(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+function autoSave(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{LS.save();const n=document.getElementById('autosave-note');n.textContent='✓ Auto-saved';setTimeout(()=>n.textContent='',2000);},1500);}
 
 /* ─── COMPANIES ─── */
-function renderCompanyBar(){
-  document.getElementById('company-chips').innerHTML=companies.map(c=>`
-    <div class="company-chip ${c.id===activeId?'active':''}" onclick="switchCompany('${c.id}')">
-      ${c.logo?`<div style="width:14px;height:14px;border-radius:3px;overflow:hidden;"><img src="${c.logo}" style="width:100%;height:100%;object-fit:contain;"/></div>`:''}
-      ${esc(c.name)}
-      <span class="co-edit" onclick="event.stopPropagation();openEditCompany('${c.id}')">✎</span>
-    </div>`).join('');
-}
-function switchCompany(id){
-  activeId=id;const c=companies.find(x=>x.id===id);if(!c)return;
-  set('f-company',c.name);set('f-contact',c.contact||'');set('f-designation',c.designation||'');
-  set('f-email',c.email||'');set('f-phone',c.phone||'');set('f-website',c.website||'');
-  logo=c.logo||'';
-  if(logo){document.getElementById('logo-inner').innerHTML=`<img src="${logo}" style="max-width:100%;max-height:100%;object-fit:contain;"/>`;document.getElementById('logo-status').textContent='Logo loaded ✓';document.getElementById('sp-logo').src=logo;document.getElementById('sp-logo').style.display='block';}
-  else{document.getElementById('logo-inner').innerHTML='<div class="logo-box-text">Upload<br/>logo</div>';document.getElementById('logo-status').textContent='No logo yet';document.getElementById('sp-logo').style.display='none';}
-  updateSig();renderCompanyBar();LS.save();
-}
-function openAddCompany(){document.getElementById('co-modal-title').textContent='Add company';document.getElementById('co-edit-id').value='';document.getElementById('co-del-btn').style.display='none';['co-name','co-contact','co-designation','co-email','co-phone','co-website'].forEach(id=>set(id,''));document.getElementById('company-overlay').classList.add('open');}
-function openEditCompany(id){const c=companies.find(x=>x.id===id);if(!c)return;document.getElementById('co-modal-title').textContent='Edit company';document.getElementById('co-edit-id').value=id;document.getElementById('co-del-btn').style.display='block';set('co-name',c.name);set('co-contact',c.contact||'');set('co-designation',c.designation||'');set('co-email',c.email||'');set('co-phone',c.phone||'');set('co-website',c.website||'');document.getElementById('company-overlay').classList.add('open');}
-function closeCompanyModal(e){if(!e||e.target===document.getElementById('company-overlay'))document.getElementById('company-overlay').classList.remove('open');}
-function saveCompany(){const editId=document.getElementById('co-edit-id').value;const data={name:v('co-name')||'My Company',contact:v('co-contact'),designation:v('co-designation'),email:v('co-email'),phone:v('co-phone'),website:v('co-website'),logo:editId?(companies.find(x=>x.id===editId)||{}).logo||'':''};if(editId){Object.assign(companies.find(x=>x.id===editId)||{},data);}else{const id='c'+Date.now();companies.push({id,...data});activeId=id;}closeCompanyModal();renderCompanyBar();if(!document.getElementById('co-edit-id').value)switchCompany(activeId);LS.save();}
-function deleteCompany(){const id=document.getElementById('co-edit-id').value;if(!id)return;companies=companies.filter(x=>x.id!==id);if(activeId===id)activeId=companies[0]?.id||'';closeCompanyModal();renderCompanyBar();LS.save();}
+function renderCoBars(){document.getElementById('co-chips').innerHTML=companies.map(c=>`<div class="co-chip ${c.id===activeId?'active':''}" onclick="switchCo('${c.id}')">${c.logo?`<div style="width:12px;height:12px;border-radius:2px;overflow:hidden;flex-shrink:0;"><img src="${c.logo}" style="width:100%;height:100%;object-fit:contain;"/></div>`:''}<span>${esc(c.name)}</span><span class="co-edit" onclick="event.stopPropagation();openEditCo('${c.id}')">✎</span></div>`).join('');}
+function switchCo(id){activeId=id;const c=companies.find(x=>x.id===id);if(!c)return;sv('f-company',c.name);sv('f-contact',c.contact||'');sv('f-designation',c.desig||'');sv('f-email',c.email||'');sv('f-phone',c.phone||'');sv('f-website',c.web||'');logo=c.logo||'';if(logo){document.getElementById('logo-inner').innerHTML=`<img src="${logo}" style="max-width:100%;max-height:100%;object-fit:contain;"/>`;document.getElementById('logo-status').textContent='Logo loaded ✓';document.getElementById('sp-logo').src=logo;document.getElementById('sp-logo').style.display='block';}else{document.getElementById('logo-inner').innerHTML='<div class="logo-placeholder">Upload<br/>logo</div>';document.getElementById('logo-status').textContent='No logo yet';document.getElementById('sp-logo').style.display='none';}updateSig();renderCoBars();LS.save();}
+function openAddCo(){document.getElementById('co-modal-title').textContent='Add company';document.getElementById('co-edit-id').value='';document.getElementById('co-del').style.display='none';['co-name','co-contact','co-desig','co-email','co-phone','co-web'].forEach(id=>sv(id,''));document.getElementById('co-overlay').classList.add('open');}
+function openEditCo(id){const c=companies.find(x=>x.id===id);if(!c)return;document.getElementById('co-modal-title').textContent='Edit company';document.getElementById('co-edit-id').value=id;document.getElementById('co-del').style.display='block';sv('co-name',c.name);sv('co-contact',c.contact||'');sv('co-desig',c.desig||'');sv('co-email',c.email||'');sv('co-phone',c.phone||'');sv('co-web',c.web||'');document.getElementById('co-overlay').classList.add('open');}
+function closeCo(e){if(!e||e.target===document.getElementById('co-overlay'))document.getElementById('co-overlay').classList.remove('open');}
+function saveCo(){const eid=v('co-edit-id');const data={name:v('co-name')||'My Company',contact:v('co-contact'),desig:v('co-desig'),email:v('co-email'),phone:v('co-phone'),web:v('co-web'),logo:eid?(companies.find(x=>x.id===eid)||{}).logo||'':''};if(eid){Object.assign(companies.find(x=>x.id===eid)||{},data);}else{const id='c'+Date.now();companies.push({id,...data});activeId=id;}document.getElementById('co-edit-id').value='';closeCo();renderCoBars();switchCo(activeId);LS.save();}
+function deleteCo(){const id=v('co-edit-id');if(!id)return;companies=companies.filter(x=>x.id!==id);if(activeId===id)activeId=companies[0]?.id||'';closeCo();renderCoBars();LS.save();}
 
 /* ─── LOGO ─── */
-function onLogoSelect(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{logo=ev.target.result;document.getElementById('logo-inner').innerHTML=`<img src="${logo}" style="max-width:100%;max-height:100%;object-fit:contain;"/>`;document.getElementById('logo-status').textContent='Logo uploaded ✓';document.getElementById('sp-logo').src=logo;document.getElementById('sp-logo').style.display='block';const c=companies.find(x=>x.id===activeId);if(c)c.logo=logo;renderCompanyBar();LS.save();};r.readAsDataURL(f);}
+function onLogoSelect(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{logo=ev.target.result;document.getElementById('logo-inner').innerHTML=`<img src="${logo}" style="max-width:100%;max-height:100%;object-fit:contain;"/>`;document.getElementById('logo-status').textContent='Logo uploaded ✓';document.getElementById('sp-logo').src=logo;document.getElementById('sp-logo').style.display='block';const c=companies.find(x=>x.id===activeId);if(c)c.logo=logo;renderCoBars();LS.save();};r.readAsDataURL(f);}
 
 /* ─── STYLE MODAL ─── */
 function openStyleModal(){document.getElementById('style-overlay').classList.add('open');}
-function closeStyleModal(e){if(!e||e.target===document.getElementById('style-overlay'))document.getElementById('style-overlay').classList.remove('open');}
-function saveStyle(){const c=companies.find(x=>x.id===activeId);if(c){c.style=styleText;c.styleInst=v('style-instructions');}document.getElementById('style-status').textContent=styleLoaded?'Style loaded — click to refine':'Upload a past RFQ to clone your writing style';closeStyleModal();LS.save();}
-function onDrag(e,over){e.preventDefault();document.getElementById('style-zone').classList.toggle('drag',over);}
-function onStyleDrop(e){e.preventDefault();document.getElementById('style-zone').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)processStyle(f);}
-function onStyleSelect(e){const f=e.target.files[0];if(f)processStyle(f);}
-async function processStyle(file){
-  document.getElementById('style-uz-title').textContent='Reading…';
-  try{
-    let text='';
-    if(file.name.endsWith('.pdf')){const buf=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:buf}).promise;for(let i=1;i<=Math.min(pdf.numPages,6);i++){const page=await pdf.getPage(i);const c=await page.getTextContent();text+=c.items.map(s=>s.str).join(' ')+'\n';}}
-    else{text=await file.text();}
-    styleText=text.slice(0,5000);styleLoaded=true;
-    document.getElementById('style-zone').classList.add('loaded');document.getElementById('style-uz-title').textContent='Document loaded ✓';document.getElementById('style-uz-file').textContent=file.name;
-    const tags=[];if(/hereby|pursuant|sincerely/i.test(text))tags.push('Formal tone');if(/dear|السادة/i.test(text))tags.push('Personal greeting');if(/^\s*\d+[.)]/m.test(text))tags.push('Numbered items');if(/saso|sabic|ksa/i.test(text))tags.push('Saudi standards');if(/vat|ضريبة/i.test(text))tags.push('VAT refs');
-    document.getElementById('signals-wrap').style.display='block';document.getElementById('signal-tags').innerHTML=tags.map(t=>`<span class="signal-tag on">${t}</span>`).join('')||'<span class="signal-tag">No patterns detected</span>';
-  }catch(e){document.getElementById('style-uz-title').textContent='Could not read file';}
-}
+function closeStyle(e){if(!e||e.target===document.getElementById('style-overlay'))document.getElementById('style-overlay').classList.remove('open');}
+function applyStyle(){const c=companies.find(x=>x.id===activeId);if(c){c.style=styleText;c.styleInst=v('style-instr');}document.getElementById('style-status').textContent=styleLoaded?'Style loaded — click to refine':'Upload a past RFQ to clone your writing style';closeStyle();LS.save();}
+function onDrag(e,over){e.preventDefault();document.getElementById('style-drop').classList.toggle('drag',over);}
+function onStyleDrop(e){e.preventDefault();document.getElementById('style-drop').classList.remove('drag');processStyle(e.dataTransfer.files[0]);}
+function onStyleSelect(e){processStyle(e.target.files[0]);}
+async function processStyle(file){if(!file)return;document.getElementById('ud-title').textContent='Reading…';try{let text='';if(file.name.endsWith('.pdf')){const buf=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:buf}).promise;for(let i=1;i<=Math.min(pdf.numPages,6);i++){const pg=await pdf.getPage(i);const ct=await pg.getTextContent();text+=ct.items.map(s=>s.str).join(' ')+'\n';}}else{text=await file.text();}styleText=text.slice(0,5000);styleLoaded=true;document.getElementById('style-drop').classList.add('loaded');document.getElementById('ud-title').textContent='Document loaded ✓';document.getElementById('ud-file').textContent=file.name;const tags=[];if(/hereby|pursuant|sincerely/i.test(text))tags.push('Formal tone');if(/dear|السادة/i.test(text))tags.push('Personal greeting');if(/^\s*\d+[.)]/m.test(text))tags.push('Numbered items');if(/saso|sabic|ksa/i.test(text))tags.push('Saudi standards');if(/vat|ضريبة/i.test(text))tags.push('VAT refs');document.getElementById('signals-wrap').style.display='block';document.getElementById('signals').innerHTML=tags.map(t=>`<span class="signal">${t}</span>`).join('')||'<span class="signal">No patterns detected</span>';}catch(e){document.getElementById('ud-title').textContent='Could not read file';}}
 
 /* ─── AUTOCOMPLETE ─── */
-function acSupplier(val){const list=document.getElementById('ac-supplier');if(!val||val.length<2){list.style.display='none';return;}const m=supplierHistory.filter(s=>s.toLowerCase().includes(val.toLowerCase()));if(!m.length){list.style.display='none';return;}list.style.display='block';list.innerHTML=m.map(s=>`<div class="ac-item" onclick="pickSupplier('${esc(s)}')">${esc(s)}</div>`).join('');}
-function pickSupplier(s){set('f-supplier',s);document.getElementById('ac-supplier').style.display='none';}
-document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('ac-supplier').style.display='none';});
+function acSupplier(val){const list=document.getElementById('ac-list');if(!val||val.length<2){list.style.display='none';return;}const m=supplierHistory.filter(s=>s.toLowerCase().includes(val.toLowerCase()));if(!m.length){list.style.display='none';return;}list.style.display='block';list.innerHTML=m.map(s=>`<div class="ac-item" onclick="pickSup('${esc(s)}')">${esc(s)}</div>`).join('');}
+function pickSup(s){sv('f-supplier',s);document.getElementById('ac-list').style.display='none';}
+document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('ac-list').style.display='none';});
 
 /* ─── SIG PREVIEW ─── */
-function updateSig(){
-  function sp(id,val){const el=document.getElementById(id);el.textContent=val;el.style.display=val?'block':'none';}
-  document.getElementById('sp-name').textContent=v('f-contact')||'Your Name';
-  sp('sp-desig',v('f-designation'));sp('sp-co',v('f-company'));sp('sp-email',v('f-email'));sp('sp-phone',v('f-phone'));sp('sp-web',v('f-website'));
-}
+function updateSig(){function sp(id,val){const el=document.getElementById(id);el.textContent=val;el.style.display=val?'block':'none';}document.getElementById('sp-name').textContent=v('f-contact')||'Your Name';sp('sp-desig',v('f-designation'));sp('sp-co',v('f-company'));sp('sp-email',v('f-email'));sp('sp-phone',v('f-phone'));sp('sp-web',v('f-website'));}
 
 /* ─── ITEMS ─── */
 function addItem(d='',q='1',u='pcs'){const id='i'+Date.now()+Math.random().toString(36).slice(2);items.push({id,d,q,u});renderItems();autoSave();}
 function removeItem(id){items=items.filter(i=>i.id!==id);renderItems();autoSave();}
 function upd(id,f,val){const i=items.find(x=>x.id===id);if(i){i[f]=val;autoSave();}}
-function renderItems(){document.getElementById('items-list').innerHTML=items.map(it=>`<div class="item-row"><input type="text" placeholder="Item description" value="${esc(it.d)}" oninput="upd('${it.id}','d',this.value)"/><input type="number" min="1" value="${esc(it.q)}" oninput="upd('${it.id}','q',this.value)" style="text-align:center;" inputmode="numeric" pattern="[0-9]*"/><input type="text" placeholder="pcs" value="${esc(it.u)}" oninput="upd('${it.id}','u',this.value)"/><button class="rm" onclick="removeItem('${it.id}')">×</button></div>`).join('');}
+function renderItems(){document.getElementById('items-list').innerHTML=items.map(it=>`<div class="item-row"><input type="text" placeholder="Item description" value="${esc(it.d)}" oninput="upd('${it.id}','d',this.value)"/><input type="number" min="1" value="${esc(it.q)}" oninput="upd('${it.id}','q',this.value)" style="text-align:center;" inputmode="numeric" pattern="[0-9]*"/><input type="text" placeholder="pcs" value="${esc(it.u)}" oninput="upd('${it.id}','u',this.value)"/><button class="rm-btn" onclick="removeItem('${it.id}')">×</button></div>`).join('');}
 
 /* ─── HELPERS ─── */
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function refNum(){const d=new Date();return 'RFQ-'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+Math.floor(Math.random()*900+100);}
 function fmtDate(ds,l){if(!ds)return '';const lm={en:'en-GB',ar:'ar-EG-u-nu-latn',fr:'fr-FR',tr:'tr-TR',ur:'ur-PK-u-nu-latn',id:'id-ID',de:'de-DE',es:'es-ES',zh:'zh-CN',ja:'ja-JP',ko:'ko-KR'};try{return new Date(ds+'T00:00:00').toLocaleDateString(lm[l]||'en-GB',{day:'2-digit',month:'long',year:'numeric',numberingSystem:'latn'});}catch(e){return ds;}}
 
-/* ─── QR CODE ─── */
-async function generateQR(){
-  return new Promise(resolve=>{
-    const wrap=document.getElementById('qr-canvas-wrap-hidden');
-    wrap.innerHTML='';
-    try{
-      new QRCode(wrap,{text:'https://rfq-forge.vercel.app',width:48,height:48,colorDark:'#1a1a18',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
-      setTimeout(()=>{const img=wrap.querySelector('img,canvas');if(img){qrDataURL=img.tagName==='CANVAS'?img.toDataURL():img.src;}resolve();},300);
-    }catch(e){resolve();}
-  });
-}
+/* ─── QR ─── */
+async function makeQR(){return new Promise(res=>{const w=document.getElementById('qr-hidden');w.innerHTML='';try{new QRCode(w,{text:'https://rfq-forge.vercel.app',width:44,height:44,colorDark:'#0a0a0a',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});setTimeout(()=>{const img=w.querySelector('img,canvas');if(img){qrURL=img.tagName==='CANVAS'?img.toDataURL():img.src;}res();},300);}catch(e){res();}});}
 
-/* ─── BUILD DOCUMENT ─── */
-function buildDoc(data){
-  const l=L[data.lang]||L.en;const rtl=isRTL(data.lang);
-  const ref=refNum();const today=fmtDate(new Date().toISOString().slice(0,10),data.lang);
-  const startStr=data.startdate?fmtDate(data.startdate,data.lang):'';
-  const deadlineStr=data.deadline?fmtDate(data.deadline,data.lang):l.tbc;
-  const pay=(l.pl||{})[data.payment]||'Net 30 days';
-  const intro=(l.ip[data.tone]||l.ip.formal)(data.company,data.supplier,data.project);
-  const termsList=l.tl(pay);const closing=l.cl(data.email,data.contact,data.designation);
-  const salutation=data.receiver?`<div class="doc-salutation">${l.dear} ${esc(data.receiver)},</div>`:'';
-  const logoHTML=data.logo?`<img src="${data.logo}" class="doc-logo-img" alt="logo"/>`:`<div class="doc-logo-fb">Logo</div>`;
-  const sigLogoHTML=data.logo?`<img src="${data.logo}" class="doc-sig-logo" alt="logo"/>`:'';
-  const thHTML=(l.th||[]).map(h=>`<th>${h}</th>`).join('');
-  const rowsHTML=data.items.map((it,i)=>`<tr><td>${i+1}</td><td>${esc(it.d)}</td><td style="text-align:center">${esc(it.q)}</td><td>${esc(it.u)}</td><td style="color:#9a9a93;font-style:italic">${l.vendor}</td></tr>`).join('');
-  const startRow=startStr?`<div class="term-c"><div class="term-c-lbl">${l.startdate}</div><div class="term-c-val">${startStr}</div></div>`:'';
-  const notesHTML=data.notes?`<div class="doc-sec"><h3>${l.terms}</h3><div class="doc-text">${esc(data.notes)}</div></div>`:'';
-  const qrHTML=qrDataURL?`<img src="${qrDataURL}" style="width:40px;height:40px;image-rendering:pixelated;"/>` :'';
+/* ─── BUILD DOC ─── */
+function buildDoc(d){
+  const l=L[d.lang]||L.en;const rtl=isRTL(d.lang);
+  const ref=refNum();const today=fmtDate(new Date().toISOString().slice(0,10),d.lang);
+  const startStr=d.startdate?fmtDate(d.startdate,d.lang):'';
+  const dlStr=d.deadline?fmtDate(d.deadline,d.lang):l.tbc;
+  const pay=(l.pl||{})[d.payment]||'Net 30 days';
+  const intro=(l.ip[d.tone]||l.ip.formal)(d.company,d.supplier,d.project);
+  const tlist=l.tl(pay);const closing=l.cl(d.email,d.contact,d.designation);
+  const sal=d.receiver?`<div class="doc-salutation">${l.dear} ${esc(d.receiver)},</div>`:'';
+  const logoH=d.logo?`<img src="${d.logo}" class="doc-logo-img" alt="logo"/>`:`<div class="doc-logo-placeholder">Logo</div>`;
+  const sigLogoH=d.logo?`<img src="${d.logo}" class="doc-sig-logo" alt="logo"/>`:'';
+  const thH=(l.th||[]).map(h=>`<th>${h}</th>`).join('');
+  const rowsH=d.items.map((it,i)=>`<tr><td>${i+1}</td><td>${esc(it.d)}</td><td style="text-align:center">${esc(it.q)}</td><td>${esc(it.u)}</td><td style="color:#9ca3af;font-style:italic">${l.vendor}</td></tr>`).join('');
+  const startRow=startStr?`<div class="term-box"><div class="term-box-lbl">${l.startdate}</div><div class="term-box-val">${startStr}</div></div>`:'';
+  const notesH=d.notes?`<div class="doc-section"><div class="doc-section-title">Additional Requirements</div><div class="doc-text">${esc(d.notes)}</div></div>`:'';
+  const qrH=qrURL?`<img src="${qrURL}" class="doc-qr" style="image-rendering:pixelated;"/>`:'';
   const metaAlign=rtl?'text-align:left':'text-align:right';
-  return `<div class="${rtl?'rtl':''}">
-    <div class="doc-hd">
-      <div class="doc-logo-block">${logoHTML}<div><div class="doc-co-name">${esc(data.company)}</div><div class="doc-co-sub">${l.rfq}</div></div></div>
-      <div class="doc-meta" style="${metaAlign}"><div class="doc-ref">${ref}</div><br/><strong>${today}</strong><br/>${esc(data.supplier)}<br/>${data.delivery?esc(data.delivery):''}</div>
+  return `<div class="${rtl?'rtl-doc':''}">
+    <div class="doc-header">
+      <div class="doc-logo-row">${logoH}<div><div class="doc-co-name">${esc(d.company)}</div><div class="doc-co-sub">${l.rfq}</div></div></div>
+      <div class="doc-meta-right" style="${metaAlign}"><div class="doc-ref-pill">${ref}</div><br/><strong>${today}</strong><br/>${esc(d.supplier)}<br/>${d.delivery?esc(d.delivery):''}</div>
     </div>
-    <div class="doc-bd">
-      ${salutation}
-      <div class="doc-sec"><h3>${l.subject}</h3><div class="doc-subject">${l.rfq}: ${esc(data.project)}</div></div>
-      <div class="doc-sec"><h3>${l.intro}</h3><div class="doc-text">${intro}</div></div>
-      <div class="doc-sec"><h3>${l.items}</h3><table class="doc-table"><thead><tr>${thHTML}</tr></thead><tbody>${rowsHTML}</tbody></table></div>
-      <div class="doc-sec"><h3>${l.terms}</h3>
-        <div class="doc-terms">
-          <div class="term-c"><div class="term-c-lbl">${l.validity}</div><div class="term-c-val">${l.days}</div></div>
-          ${startRow}
-          <div class="term-c"><div class="term-c-lbl">${l.deadline}</div><div class="term-c-val">${deadlineStr}</div></div>
-          <div class="term-c"><div class="term-c-lbl">${l.payment}</div><div class="term-c-val">${pay}</div></div>
-          <div class="term-c"><div class="term-c-lbl">${l.delivery}</div><div class="term-c-val">${esc(data.delivery)||l.tbc}</div></div>
-        </div>
-        <div class="terms-list">${termsList.map(t=>`• ${t}`).join('<br/>')}</div>
+    <div class="doc-body">
+      ${sal}
+      <div class="doc-section"><div class="doc-section-title">${l.subject}</div><div class="doc-subject">${l.rfq}: ${esc(d.project)}</div></div>
+      <div class="doc-section"><div class="doc-section-title">${l.intro}</div><div class="doc-text">${intro}</div></div>
+      <div class="doc-section"><div class="doc-section-title">${l.items}</div><table class="doc-table"><thead><tr>${thH}</tr></thead><tbody>${rowsH}</tbody></table></div>
+      <div class="doc-section"><div class="doc-section-title">${l.terms}</div>
+        <div class="doc-terms-grid"><div class="term-box"><div class="term-box-lbl">${l.validity}</div><div class="term-box-val">${l.days}</div></div>${startRow}<div class="term-box"><div class="term-box-lbl">${l.deadline}</div><div class="term-box-val">${dlStr}</div></div><div class="term-box"><div class="term-box-lbl">${l.payment}</div><div class="term-box-val">${pay}</div></div><div class="term-box"><div class="term-box-lbl">${l.delivery}</div><div class="term-box-val">${esc(d.delivery)||l.tbc}</div></div></div>
+        <div class="terms-bullets">${tlist.map(t=>`• ${t}`).join('<br/>')}</div>
       </div>
-      ${notesHTML}
-      <div class="doc-sec"><h3>${l.closing}</h3><div class="doc-text">${closing}</div></div>
+      ${notesH}
+      <div class="doc-section"><div class="doc-section-title">${l.closing}</div><div class="doc-text">${closing}</div></div>
     </div>
     <div class="doc-sig">
-      <div class="doc-sig-left"><div class="doc-sig-bar"></div>
-        <div class="doc-sig-info">
-          <strong>${esc(data.contact||(rtl?'قسم المشتريات':'Procurement'))}</strong>
-          ${data.designation?`<em>${esc(data.designation)}</em>`:''}
-          ${data.company?`<span>${esc(data.company)}</span>`:''}
-          ${data.email?`<span>${esc(data.email)}</span>`:''}
-          ${data.phone?`<span>${esc(data.phone)}</span>`:''}
-          ${data.website?`<span>${esc(data.website)}</span>`:''}
-        </div>
-      </div>${sigLogoHTML}
+      <div class="doc-sig-left"><div class="doc-sig-accent"></div>
+        <div class="doc-sig-info"><strong>${esc(d.contact||(rtl?'قسم المشتريات':'Procurement'))}</strong>${d.designation?`<em>${esc(d.designation)}</em>`:''} ${d.company?`<span>${esc(d.company)}</span>`:''} ${d.email?`<span>${esc(d.email)}</span>`:''} ${d.phone?`<span>${esc(d.phone)}</span>`:''} ${d.website?`<span>${esc(d.website)}</span>`:''}</div>
+      </div>${sigLogoH}
     </div>
-    <div class="doc-footer-qr">
-      <div class="doc-footer-url">rfq-forge.vercel.app · Generated with RFQforge</div>
-      ${qrHTML}
-    </div>
+    <div class="doc-footer-strip"><div class="doc-footer-url">rfq-forge.vercel.app · Generated with RFQforge</div>${qrH}</div>
   </div>`;
+}
+
+
+/* ─── USAGE LIMIT ─── */
+const LIMIT=10;
+function getUsage(){
+  const now=new Date();
+  const key=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const stored=JSON.parse(localStorage.getItem('rfq_usage')||'{}');
+  if(stored.month!==key){stored.month=key;stored.count=0;localStorage.setItem('rfq_usage',JSON.stringify(stored));}
+  return stored;
+}
+function incrementUsage(){
+  const u=getUsage();u.count++;localStorage.setItem('rfq_usage',JSON.stringify(u));return u.count;
+}
+function showPaywall(){
+  const u=getUsage();
+  const now=new Date();
+  const firstOfNext=new Date(now.getFullYear(),now.getMonth()+1,1);
+  const diff=Math.ceil((firstOfNext-now)/(1000*60*60*24));
+  document.getElementById('paywall-countdown').textContent=diff+' day'+(diff!==1?'s':'');
+  document.getElementById('paywall-used').textContent='Used: '+u.count+' / '+LIMIT+' RFQs this month';
+  document.getElementById('paywall-overlay').classList.add('open');
+}
+function updateUsageBadge(){
+  const u=getUsage();
+  const remaining=Math.max(0,LIMIT-u.count);
+  const badge=document.getElementById('usage-badge');
+  if(badge){
+    badge.textContent=remaining+' RFQ'+(remaining!==1?'s':'')+' left';
+    badge.style.color=remaining<=3?'var(--red)':remaining<=6?'var(--amber)':'var(--hint)';
+  }
 }
 
 /* ─── GENERATE ─── */
 async function generate(){
-  const company=v('f-company'),supplier=v('f-supplier'),project=v('f-project');
-  document.getElementById('err').innerHTML='';
-  if(!company||!supplier||!project){document.getElementById('err').innerHTML='<div class="err-msg">Please fill in company name, supplier, and project details.</div>';return;}
-  if(!items.length||!items[0].d){document.getElementById('err').innerHTML='<div class="err-msg">Please add at least one item.</div>';return;}
-  if(supplier&&!supplierHistory.includes(supplier)){supplierHistory.unshift(supplier);if(supplierHistory.length>20)supplierHistory.pop();}
+  // CHECK USAGE LIMIT FIRST
+  const usage=getUsage();
+  if(usage.count>=LIMIT){showPaywall();return;}
+
+  const co=v('f-company'),sup=v('f-supplier'),prj=v('f-project');
+  document.getElementById('err-box').innerHTML='';
+  if(!co||!sup||!prj){document.getElementById('err-box').innerHTML='<div class="err-box">Please fill in company name, supplier, and project details.</div>';return;}
+  if(!items.length||!items[0].d){document.getElementById('err-box').innerHTML='<div class="err-box">Please add at least one item.</div>';return;}
+  if(sup&&!supplierHistory.includes(sup)){supplierHistory.unshift(sup);if(supplierHistory.length>20)supplierHistory.pop();}
+  let cnt=parseInt(localStorage.getItem('rfq_global_count')||12847);localStorage.setItem('rfq_global_count',cnt+1);
+  incrementUsage();updateUsageBadge();
   LS.save();
-
-  // update global counter
-  let cnt=parseInt(localStorage.getItem('rfq_global_count')||12847);
-  cnt++;localStorage.setItem('rfq_global_count',cnt);
-
-  const btn=document.getElementById('gen-btn');btn.disabled=true;document.getElementById('btn-text').textContent='Generating…';
+  const btn=document.getElementById('gen-btn');btn.disabled=true;document.getElementById('btn-txt').textContent='Generating…';
   document.getElementById('empty-state').style.display='none';document.getElementById('out-panel').style.display='block';document.getElementById('doc-paper').innerHTML='';
-  const prog=document.getElementById('prog');prog.style.width='0%';
-  let p=0;const tick=setInterval(()=>{p=Math.min(p+Math.random()*14,88);prog.style.width=p+'%';},200);
-
-  await generateQR();
-
+  const pf=document.getElementById('prog-fill');pf.style.width='0%';
+  let p=0;const tick=setInterval(()=>{p=Math.min(p+Math.random()*15,88);pf.style.width=p+'%';},200);
+  await makeQR();
   setTimeout(()=>{
-    clearInterval(tick);prog.style.width='100%';
-    currentDocData={company,supplier,project,receiver:v('f-receiver'),contact:v('f-contact'),designation:v('f-designation'),email:v('f-email'),phone:v('f-phone'),website:v('f-website'),startdate:v('f-startdate'),deadline:v('f-deadline'),delivery:v('f-delivery'),lang,tone:v('f-tone')||'formal',payment:v('f-payment')||'net30',notes:v('f-notes'),logo,items:[...items]};
-    document.getElementById('doc-paper').innerHTML=buildDoc(currentDocData);
-    setTimeout(()=>prog.style.width='0%',700);
-    btn.disabled=false;document.getElementById('btn-text').textContent='Generate document';
-    if(wtStep<WT_STEPS.length-1&&document.getElementById('wt-panel').style.display!=='none'){wtStep=Math.min(wtStep+1,WT_STEPS.length-1);renderWt();}
-    if(window.posthog)posthog.capture('rfq_generated',{language:lang,tone:v('f-tone'),company_count:companies.length});
-  },1500);
+    clearInterval(tick);pf.style.width='100%';
+    curData={company:co,supplier:sup,project:prj,receiver:v('f-receiver'),contact:v('f-contact'),designation:v('f-designation'),email:v('f-email'),phone:v('f-phone'),website:v('f-website'),startdate:v('f-startdate'),deadline:v('f-deadline'),delivery:v('f-delivery'),lang,tone:v('f-tone')||'formal',payment:v('f-payment')||'net30',notes:v('f-notes'),logo,items:[...items]};
+    document.getElementById('doc-paper').innerHTML=buildDoc(curData);
+    setTimeout(()=>pf.style.width='0%',600);
+    btn.disabled=false;document.getElementById('btn-txt').textContent='Generate document';
+    if(wtStep<WT_STEPS.length-1&&document.getElementById('wt-panel').style.display!=='none'){wtStep++;renderWt();}
+    if(window.posthog)try{posthog.capture('rfq_generated',{language:lang});}catch(e){}
+  },1400);
 }
 
 /* ─── EXPORT ─── */
-function copyDoc(){const text=document.getElementById('doc-paper')?.innerText||'';navigator.clipboard.writeText(text).then(()=>{const b=event.target;b.textContent='Copied!';setTimeout(()=>b.textContent='Copy',1500);});}
-function copyEmail(){
-  if(!currentDocData)return;
-  const subject=`RFQ: ${currentDocData.project} — ${refNum()}`;
-  const body=document.getElementById('doc-paper')?.innerText||'';
-  const mailto=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.open(mailto);
-}
-function sendWhatsApp(){
-  if(!currentDocData)return;
-  const l=L[currentDocData.lang]||L.en;
-  const text=`*${l.rfq}*\n\n${document.getElementById('doc-paper')?.innerText||''}`;
-  window.open('https://wa.me/?text='+encodeURIComponent(text.slice(0,2000)));
-}
-function saveTemplate(){
-  if(!currentDocData)return;
-  const key='tmpl_'+activeId+'_'+Date.now();
-  const tmpl={key,name:currentDocData.project||'Template',data:currentDocData,saved:new Date().toISOString()};
-  const existing=JSON.parse(localStorage.getItem('rfq_saved_templates')||'[]');
-  existing.unshift(tmpl);if(existing.length>20)existing.pop();
-  localStorage.setItem('rfq_saved_templates',JSON.stringify(existing));
-  const b=event.target;b.textContent='Saved! ✓';setTimeout(()=>b.textContent='Save template',1500);
-}
+function copyText(){const t=document.getElementById('doc-paper')?.innerText||'';navigator.clipboard.writeText(t).then(()=>{const b=event.target;b.textContent='Copied!';setTimeout(()=>b.textContent='Copy',1500);});}
+function copyEmail(){if(!curData)return;const sub=`RFQ: ${curData.project}`;const body=document.getElementById('doc-paper')?.innerText||'';window.open(`mailto:?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`);}
+function sendWA(){if(!curData)return;const txt=document.getElementById('doc-paper')?.innerText||'';window.open('https://wa.me/?text='+encodeURIComponent(txt.slice(0,2000)));}
+function saveTmpl(){if(!curData)return;const existing=JSON.parse(localStorage.getItem('rfq_templates')||'[]');existing.unshift({key:'t'+Date.now(),name:curData.project,data:curData,saved:new Date().toISOString()});if(existing.length>20)existing.pop();localStorage.setItem('rfq_templates',JSON.stringify(existing));const b=event.target;b.textContent='Saved ✓';setTimeout(()=>b.textContent='Save template',1500);}
 
-/* ─── TOUR (fixed — all 6 steps) ─── */
-const TOUR_STEPS=[
-  {el:'#lang-bar',title:'Step 1 · Choose your language',body:'Pick from 11 languages at the top — all free. The entire document will be written natively in your chosen language.'},
-  {el:'#tmpl-bar',title:'Step 2 · Pick a template',body:'Choose your industry template. It pre-fills the right items and terminology for your sector instantly.'},
-  {el:'#sec-brand',title:'Step 3 · Upload your logo',body:'Click the logo box to upload your company logo. It appears in the document header and signature. Use the style cloning button to match your writing style.'},
-  {el:'#sec-who',title:'Step 4 · Fill your details',body:'Enter your company, supplier, and receiver name. Add "Dear Ahmad," salutation by filling the receiver name field.'},
-  {el:'#sec-items',title:'Step 5 · Add your items',body:'List everything you need. Quantities always display as Western numerals regardless of the language.'},
-  {el:'#gen-btn',title:'Step 6 · Generate & send',body:'Click Generate. Then copy, send via WhatsApp, or download a clean PDF with your QR code included.'}
+/* ─── TOUR — SCROLLS TO ELEMENT ─── */
+const TOUR=[
+  {sel:'#lang-bar',title:'Step 1 · Choose your language',body:'Pick from 11 languages here — all free. One click changes the entire document output language.'},
+  {sel:'#tmpl-bar',title:'Step 2 · Pick an industry template',body:'Choose your industry. Items, tone, and requirements pre-fill instantly — no typing needed.'},
+  {sel:'#sec-brand',title:'Step 3 · Upload logo & clone style',body:'Upload your company logo. Use the style cloning button to upload a past RFQ and match your writing style exactly.'},
+  {sel:'#sec-who',title:'Step 4 · Your details & receiver',body:'Fill your company info once — it saves automatically. Add a receiver name for a personal "Dear Ahmad," opening.'},
+  {sel:'#sec-items',title:'Step 5 · Items list',body:'List everything you need. Quantities always show as Western numerals regardless of the output language.'},
+  {sel:'#gen-btn',title:'Step 6 · Generate & export',body:'Click Generate. Then copy, send via WhatsApp, or download a clean PDF with your QR code — no watermarks.'}
 ];
 let tourStep=0;
 function startTour(){tourStep=0;showTourStep();}
 function showTourStep(){
-  if(tourStep>=TOUR_STEPS.length){endTour();return;}
-  const s=TOUR_STEPS[tourStep];const el=document.querySelector(s.el);
+  if(tourStep>=TOUR.length){endTour();return;}
+  const s=TOUR[tourStep];
+  const el=document.querySelector(s.sel);
   if(!el){tourStep++;showTourStep();return;}
-  document.getElementById('tour-overlay').style.display='block';
-  const r=el.getBoundingClientRect();
-  const spot=document.getElementById('tour-spot');
-  spot.style.cssText=`top:${r.top-5}px;left:${r.left-5}px;width:${r.width+10}px;height:${r.height+10}px;`;
-  const tip=document.getElementById('tour-tip');
-  document.getElementById('tt-title').textContent=s.title;
-  document.getElementById('tt-body').textContent=s.body;
-  document.getElementById('tt-prog').textContent=`${tourStep+1} of ${TOUR_STEPS.length}`;
-  document.getElementById('tt-next').textContent=tourStep===TOUR_STEPS.length-1?'Done ✓':'Next →';
-  const below=r.bottom+170<window.innerHeight;
-  tip.style.cssText=`top:${below?r.bottom+12:r.top-170}px;left:${Math.min(Math.max(r.left,10),window.innerWidth-285)}px;`;
+
+  // SCROLL the element into view in the form column if needed
+  if(el.closest('.form-col')){
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+
+  const doShow=()=>{
+    document.getElementById('tour-overlay').style.display='block';
+    const r=el.getBoundingClientRect();
+    const hole=document.getElementById('tour-hole');
+    hole.style.cssText=`top:${r.top-4}px;left:${r.left-4}px;width:${r.width+8}px;height:${r.height+8}px;`;
+    const card=document.getElementById('tour-card');
+    document.getElementById('tc-title').textContent=s.title;
+    document.getElementById('tc-body').textContent=s.body;
+    document.getElementById('tc-prog').textContent=`${tourStep+1} of ${TOUR.length}`;
+    document.getElementById('tc-next').textContent=tourStep===TOUR.length-1?'Done ✓':'Next →';
+    // position card — prefer below, fall back to above
+    const below=r.bottom+180<window.innerHeight;
+    const top=below?r.bottom+10:Math.max(10,r.top-175);
+    const left=Math.min(Math.max(r.left,10),window.innerWidth-270);
+    card.style.cssText=`top:${top}px;left:${left}px;`;
+  };
+
+  // small delay to let scroll settle
+  setTimeout(doShow,300);
 }
 function nextTour(){tourStep++;showTourStep();}
 function endTour(){document.getElementById('tour-overlay').style.display='none';localStorage.setItem('rfq_toured','1');}
 
 /* ─── WALKTHROUGH ─── */
-const WT_STEPS=['Choose your language','Pick an industry template','Upload logo & clone style','Fill company & receiver details','Add items to the list','Generate, export & send'];
-function renderWt(){
-  document.getElementById('wt-steps').innerHTML=WT_STEPS.map((s,i)=>`<div class="wt-step ${i===wtStep?'active':i<wtStep?'done':''}"><div class="wt-sn">${i<wtStep?'✓':i+1}</div><div class="wt-st">${s}</div></div>`).join('');
-  document.getElementById('wt-next-btn').textContent=wtStep>=WT_STEPS.length-1?'Finish ✓':'Next →';
-}
+const WT_STEPS=['Choose language','Pick template','Upload logo & style','Fill details & receiver','Add items','Generate & export'];
+function renderWt(){document.getElementById('wt-steps').innerHTML=WT_STEPS.map((s,i)=>`<div class="wt-step ${i===wtStep?'active':i<wtStep?'done':''}"><div class="wt-step-num">${i<wtStep?'✓':i+1}</div><div class="wt-step-txt">${s}</div></div>`).join('');document.getElementById('wt-next').textContent=wtStep>=WT_STEPS.length-1?'Finish ✓':'Next →';}
 function wtNext(){if(wtStep<WT_STEPS.length-1){wtStep++;renderWt();}else closeWt();}
 function wtPrev(){if(wtStep>0){wtStep--;renderWt();}}
 function closeWt(){document.getElementById('wt-panel').style.display='none';localStorage.setItem('rfq_walked','1');}
@@ -947,22 +801,38 @@ window.addEventListener('load',()=>{
   LS.load();
   const today=new Date().toISOString().slice(0,10);
   const dl=new Date(Date.now()+14*864e5).toISOString().slice(0,10);
-  if(!document.getElementById('f-startdate').value)set('f-startdate',today);
-  if(!document.getElementById('f-deadline').value)set('f-deadline',dl);
+  if(!document.getElementById('f-startdate').value)sv('f-startdate',today);
+  if(!document.getElementById('f-deadline').value)sv('f-deadline',dl);
   if(!items.length)addItem();
   updateSig();
-  if(!companies.length){companies=[{id:'c0',name:'My Company',contact:'',designation:'',email:'',phone:'',website:'',logo:'',style:''}];activeId='c0';}
+  if(!companies.length){companies=[{id:'c0',name:'My Company',contact:'',desig:'',email:'',phone:'',web:'',logo:'',style:''}];activeId='c0';}
   if(!activeId||!companies.find(x=>x.id===activeId))activeId=companies[0].id;
-  renderCompanyBar();
-
-  // check URL for template param
+  renderCoBars();
   const tmpl=new URLSearchParams(location.search).get('template');
-  if(tmpl&&TEMPLATES[tmpl])applyTemplate(tmpl);
-
-  // first visit
+  if(tmpl&&TMPLS[tmpl])applyTemplate(tmpl);
+  updateUsageBadge();
   if(!localStorage.getItem('rfq_walked')){document.getElementById('wt-panel').style.display='block';renderWt();}
-  else if(!localStorage.getItem('rfq_toured')){setTimeout(startTour,600);}
+  else if(!localStorage.getItem('rfq_toured')){setTimeout(startTour,500);}
 });
 </script>
+
+<!-- PAYWALL MODAL -->
+<div class="overlay" id="paywall-overlay">
+  <div class="modal" style="max-width:420px;text-align:center;" onclick="event.stopPropagation()">
+    <div class="modal-body" style="padding:28px 24px;">
+      <div style="font-size:32px;margin-bottom:12px;">🔒</div>
+      <div style="font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.3px;margin-bottom:8px;">You've used 10 RFQs this month</div>
+      <div style="font-size:13.5px;color:var(--muted);line-height:1.7;margin-bottom:20px;">Free plan includes 10 RFQs per month. Your limit resets on the 1st of next month.<br/><br/>Join the waitlist to get <strong>unlimited RFQs</strong> when Pro launches — founding members get 50% off.</div>
+      <div style="background:var(--surface);border-radius:8px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Resets in</div>
+        <div style="font-size:20px;font-weight:700;color:var(--ink);" id="paywall-countdown">— days</div>
+      </div>
+      <a href="https://forms.gle/UXykmqMGd3po8Hxe9" target="_blank" style="display:block;width:100%;padding:12px;background:var(--dark);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;margin-bottom:8px;font-family:var(--font);">Join waitlist for unlimited access →</a>
+      <button onclick="document.getElementById('paywall-overlay').classList.remove('open')" style="display:block;width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);font-family:var(--font);">Close — wait for reset</button>
+      <div style="margin-top:12px;font-size:11.5px;color:var(--hint);" id="paywall-used"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
