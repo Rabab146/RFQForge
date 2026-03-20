@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Privacy Policy — RFQforge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--display:'DM Serif Display',serif;--body:'Plus Jakarta Sans',sans-serif;--ink:#0f0f0d;--muted:#52524e;--hint:#9a9a93;--bg:#fafaf7;--surface:#f2f1ed;--card:#fff;--border:#e4e3dd;--green:#1a8f67;--green-pale:#e8f7f1;--green-deep:#0d5c42;}
+body{font-family:var(--body);background:var(--bg);color:var(--ink);}
+nav{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;background:var(--card);border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:50;}
+.nav-brand{display:flex;align-items:center;gap:8px;text-decoration:none;}
+.nav-mark{width:28px;height:28px;border-radius:8px;background:var(--ink);display:flex;align-items:center;justify-content:center;}
+.nav-name{font-family:var(--display);font-size:18px;color:var(--ink);}
+.nav-name em{color:var(--green);font-style:normal;}
+.nav-home{font-size:13px;color:var(--muted);text-decoration:none;border:0.5px solid var(--border);border-radius:7px;padding:5px 12px;transition:all .15s;}
+.nav-home:hover{border-color:var(--ink);color:var(--ink);}
+.page{max-width:720px;margin:0 auto;padding:4rem 2rem 6rem;}
+.page-eyebrow{font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-bottom:.75rem;}
+.page-title{font-family:var(--display);font-size:42px;color:var(--ink);margin-bottom:.5rem;}
+.page-date{font-size:13px;color:var(--hint);margin-bottom:3rem;padding-bottom:2rem;border-bottom:0.5px solid var(--border);}
+h2{font-family:var(--display);font-size:22px;color:var(--ink);margin:2.5rem 0 .75rem;font-style:italic;}
+p{font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:1rem;}
+ul{margin:.5rem 0 1rem 1.25rem;}
+ul li{font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:.35rem;}
+.highlight{background:var(--green-pale);border-left:3px solid var(--green);padding:1rem 1.25rem;border-radius:0 8px 8px 0;margin:1.5rem 0;}
+.highlight p{margin:0;color:var(--green-deep);font-weight:500;}
+footer{background:#0f0f0d;padding:2rem;text-align:center;}
+.footer-brand{font-family:var(--display);font-size:16px;color:rgba(255,255,255,.5);margin-bottom:.35rem;}
+.footer-brand em{color:#6dcfad;font-style:normal;}
+.footer-links{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;}
+.footer-link{font-size:12px;color:rgba(255,255,255,.3);text-decoration:none;}
+.footer-link:hover{color:rgba(255,255,255,.7);}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="/">
+    <div class="nav-mark"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="6" rx="1" fill="#1a8f67"/><rect x="9" y="2" width="5" height="3" rx="1" fill="white" opacity=".6"/><rect x="2" y="10" width="12" height="1.5" rx=".75" fill="white" opacity=".4"/><rect x="2" y="12.5" width="8" height="1.5" rx=".75" fill="white" opacity=".25"/></svg></div>
+    <span class="nav-name">RFQ<em>forge</em></span>
+  </a>
+  <a class="nav-home" href="/">← Home</a>
+</nav>
+<div class="page">
+  <div class="page-eyebrow">Legal</div>
+  <h1 class="page-title">Privacy Policy</h1>
+  <div class="page-date">Last updated: March 2026</div>
+
+  <div class="highlight"><p>Short version: RFQforge does not collect, store, or sell your personal data on any server. Everything stays in your browser.</p></div>
+
+  <h2>What we collect</h2>
+  <p>RFQforge is a client-side web application. This means all data you enter — company names, contact details, item lists, logos — is stored exclusively in your browser's localStorage and never transmitted to our servers.</p>
+  <p>We collect the following limited data through third-party analytics tools:</p>
+  <ul>
+    <li>Page views and session duration (via Plausible Analytics — no cookies, no personal identifiers)</li>
+    <li>Feature usage events such as "RFQ generated" and language selected (via PostHog — anonymised)</li>
+    <li>Email address if you voluntarily submit it via our waitlist form (via Google Forms — governed by Google's privacy policy)</li>
+  </ul>
+
+  <h2>What we do not collect</h2>
+  <ul>
+    <li>We do not collect your name, email, or phone number unless you submit it via the waitlist form</li>
+    <li>We do not store any RFQ documents you generate</li>
+    <li>We do not use advertising cookies or tracking pixels</li>
+    <li>We do not sell data to third parties — ever</li>
+    <li>We do not require account creation to use the free tier</li>
+  </ul>
+
+  <h2>Local storage</h2>
+  <p>RFQforge saves your company profiles, form state, and preferences in your browser's localStorage. This data never leaves your device. You can clear it at any time by clearing your browser's site data for rfq-forge.vercel.app.</p>
+
+  <h2>Analytics</h2>
+  <p>We use Plausible Analytics, a privacy-first analytics tool that does not use cookies and does not collect personally identifiable information. Plausible is GDPR, CCPA, and PECR compliant. You can read their privacy policy at plausible.io/privacy.</p>
+  <p>We use PostHog for product analytics to understand how features are used. All events are anonymised and contain no personal information — only aggregate usage data such as which language was selected or how many items were added.</p>
+
+  <h2>Waitlist</h2>
+  <p>If you submit your email via our waitlist form, it is stored in Google Forms and used solely to notify you when Pro features become available. We will not send marketing emails without your explicit consent and you can request deletion at any time.</p>
+
+  <h2>Your rights</h2>
+  <p>You have the right to access, correct, or delete any personal data we hold. Since we hold virtually none, the simplest action is clearing your browser's localStorage. For waitlist data, email us and we will remove your entry within 48 hours.</p>
+
+  <h2>Contact</h2>
+  <p>For privacy questions, contact us at: privacy@rfqforge.com</p>
+  <p>This policy may be updated periodically. We will note the date of the last update at the top of this page.</p>
+</div>
+<footer>
+  <div class="footer-brand">RFQ<em>forge</em></div>
+  <div class="footer-links">
+    <a class="footer-link" href="/privacy.html">Privacy</a>
+    <a class="footer-link" href="/terms.html">Terms</a>
+    <a class="footer-link" href="/">Home</a>
+    <a class="footer-link" href="/app">App</a>
+  </div>
+</footer>
+</body>
+</html>
